@@ -72,24 +72,16 @@ public class Token {
 
 	private TokenType parseAnum() {
 		
-		try {
 	
 			if(!Character.isDigit(val.charAt(0))){
 				return TokenType.IDENTIFIER;
 				
 			}
-			else if(val.matches("[0-9]+")) {
-				return TokenType.VALUE;
-			}
-			else {
-				System.out.println("Invalid token");
-			}
-		}catch(StringIndexOutOfBoundsException e) {
-			e.printStackTrace();
-			
-		}
-		return null;
+			if (val.matches("[a-zA-Z_][a-zA-Z0-9_]*")) {
+		        return TokenType.IDENTIFIER;
+		    }
 		
+		    throw new IllegalArgumentException("Invalid token: " + val);
 	}
 	
 }
