@@ -28,7 +28,13 @@ public class Token {
 		this.tokenType = parseTokenType();
 		
 	}
-	
+	public TokenType getTokenType() {
+		return tokenType;
+	}
+	public String getVal() {
+		
+		return val;
+	}
 	
 	private TokenType parseTokenType() {
 		switch(this.val) {
