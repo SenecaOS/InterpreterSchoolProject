@@ -1,2 +1,6 @@
-target/ *.class .idea/ *.iml .vscode/
+target/
+*.class 
+.idea/
+*.iml 
+.vscode/
 .env
