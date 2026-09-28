@@ -21,5 +21,6 @@ public enum TokenType {
 		SEMICOLON,
 		DOT,
 		SLASH,
-		EOF
+		EOF,
+		STRING
 }

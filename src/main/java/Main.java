@@ -19,9 +19,8 @@ public class Main {
 	private static void runFile(String path) throws IOException {
 		byte[] bytes = Files.readAllBytes(Paths.get(path));
 		run(new String(bytes, Charset.defaultCharset()));
-		
-				
-			}
+					
+	}
 		
 
 	
@@ -36,11 +35,16 @@ public class Main {
 	}
 
 	public static void main(String [] args) throws IOException {
-		if(isValidFormat(args[0])) {
-			runFile(args[0]);	
-			System.out.println("here now");
+		if(args.length < 1) {
+			System.out.println("No arguments passed in, program will now exit");
+			return;
 		}
 		
+		if(isValidFormat(args[0])) {
+			runFile(args[0]);	
+		}
+		
+		//runFile("src/main/java/test.smth");
 	}
 	
 	

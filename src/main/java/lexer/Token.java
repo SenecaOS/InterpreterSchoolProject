@@ -18,15 +18,15 @@ public class Token {
 		return tokenType;
 	}
 	public String getVal() {
-		
 		return val;
 	}
 
-
+	public Object getLiteral() {
+		return literal;
+	}
 
 	
 	public String toString(){
-		
 		return tokenType.toString() + "(\"" + val + "\")";
 	}
 	
