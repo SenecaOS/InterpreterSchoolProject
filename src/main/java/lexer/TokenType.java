@@ -2,10 +2,7 @@ package lexer;
 
 public enum TokenType {
 	
-		LET,
-		FOR,
-		WHILE,
-		DO,
+		LOOP,
 		IF,
 		IDENTIFIER,
 		VALUE,
@@ -22,5 +19,17 @@ public enum TokenType {
 		DOT,
 		SLASH,
 		EOF,
-		STRING
+		STRING,
+		NOT,
+		NOT_EQUALS,
+		LESS_EQUALS,
+		OR,
+		AND, 
+		LESSER, 
+		GREATER, 
+		GREATER_EQUALS,
+		SMTH, 
+		TRUE,
+		ASSIGNMENT,
+		EQUALS
 }
