@@ -31,5 +31,8 @@ public enum TokenType {
 		SMTH, 
 		TRUE,
 		ASSIGNMENT,
-		EQUALS
+		EQUALS,
+		ELSE,
+		TERMINATOR,
+		RETURN
 }

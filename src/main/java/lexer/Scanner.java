@@ -53,6 +53,9 @@ public class Scanner {
 		case '\t':
 			// we ignore white space
 			break;
+		case ';':
+			addToken(TokenType.TERMINATOR);
+			break;
 		case '(':
 			addToken(TokenType.LEFT_PARENS);
 			break;
@@ -105,15 +108,23 @@ public class Scanner {
 				c = '\0';
 			}
 			break;
+		case 'r':
+			if (inputMatchesWord("eturn")) {
+				addToken(TokenType.RETURN);
+				c = '\0';
+			}
+			break;
 		case 't':
-			if (inputMatchesWord("rue")) {
-				addToken(TokenType.TRUE);
+		case 'e':
+			String word = c == 't' ? "rue" : "lse";
+			if (inputMatchesWord(word)) {
+				addToken(c == 't' ? TokenType.TRUE : TokenType.ELSE);
 				c = '\0';
 			}
 			break;
 		case 'l':
 		case 's':
-			String word = c == 's' ? "mth" : "oop";
+			word = c == 's' ? "mth" : "oop";
 			if (inputMatchesWord(word)) {
 				addToken(c == 's' ? TokenType.SMTH : TokenType.LOOP);
 				//Reset c to prevent fall through behavior

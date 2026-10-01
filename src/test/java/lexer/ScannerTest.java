@@ -8,6 +8,67 @@ import org.junit.jupiter.api.Test;
 //TODO add test for smth keyword
 
 public class ScannerTest {
+	
+	
+	@Test
+	void testReturnKeyword() {
+		
+		Scanner scanner = new Scanner("return");
+		scanner.scanTokens();
+		assertEquals("RETURN(\"return\") EOF(\"\") ", scanner.toString());
+		
+		scanner = new Scanner("return;");
+		scanner.scanTokens();
+		assertEquals("RETURN(\"return\") TERMINATOR(\";\") EOF(\"\") ", scanner.toString());
+		
+		scanner = new Scanner("returna;");
+		scanner.scanTokens();
+		assertEquals("IDENTIFIER(\"returna\") TERMINATOR(\";\") EOF(\"\") ", scanner.toString());
+		
+		
+	}
+	
+	
+	
+	@Test
+	void testTerminator() {
+		
+		Scanner scanner = new Scanner(";");
+		scanner.scanTokens();
+		assertEquals("TERMINATOR(\";\") EOF(\"\") ", scanner.toString());
+		
+		scanner = new Scanner("!;");
+		scanner.scanTokens();
+		assertEquals("NOT(\"!\") TERMINATOR(\";\") EOF(\"\") ", scanner.toString());
+		
+		scanner = new Scanner("elsea;");
+		scanner.scanTokens();
+		assertEquals("IDENTIFIER(\"elsea\") TERMINATOR(\";\") EOF(\"\") ", scanner.toString());
+		
+		
+	}
+	
+	
+	@Test
+	void testElseKeyword() {
+		
+		Scanner scanner = new Scanner("else");
+		scanner.scanTokens();
+		assertEquals("ELSE(\"else\") EOF(\"\") ", scanner.toString());
+		
+		scanner = new Scanner("!else");
+		scanner.scanTokens();
+		assertEquals("NOT(\"!\") ELSE(\"else\") EOF(\"\") ", scanner.toString());
+		
+		scanner = new Scanner("elsea");
+		scanner.scanTokens();
+		assertEquals("IDENTIFIER(\"elsea\") EOF(\"\") ", scanner.toString());
+		
+		
+	}
+	
+	
+	
 	@Test
 	void testSmthKeyword() {
 		
@@ -26,6 +87,7 @@ public class ScannerTest {
 		
 	}
 	
+	@Test
 	void testNot() {
 		
 		Scanner scanner = new Scanner("!");
@@ -34,7 +96,7 @@ public class ScannerTest {
 		
 		scanner = new Scanner("!!");
 		scanner.scanTokens();
-		assertEquals("NOT(\"!\") NOT(\"\") EOF(\"\") ", scanner.toString());
+		assertEquals("NOT(\"!\") NOT(\"!\") EOF(\"\") ", scanner.toString());
 		
 		scanner = new Scanner("!!true");
 		scanner.scanTokens();
