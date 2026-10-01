@@ -5,9 +5,47 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 
 
-//TODO add more test cases for each method
+//TODO add test for smth keyword
 
 public class ScannerTest {
+	@Test
+	void testSmthKeyword() {
+		
+		Scanner scanner = new Scanner("smth");
+		scanner.scanTokens();
+		assertEquals("SMTH(\"smth\") EOF(\"\") ", scanner.toString());
+		
+		scanner = new Scanner("!smth");
+		scanner.scanTokens();
+		assertEquals("NOT(\"!\") SMTH(\"smth\") EOF(\"\") ", scanner.toString());
+		
+		scanner = new Scanner("smtha");
+		scanner.scanTokens();
+		assertEquals("IDENTIFIER(\"smtha\") EOF(\"\") ", scanner.toString());
+		
+		
+	}
+	
+	void testNot() {
+		
+		Scanner scanner = new Scanner("!");
+		scanner.scanTokens();
+		assertEquals("NOT(\"!\") EOF(\"\") ", scanner.toString());
+		
+		scanner = new Scanner("!!");
+		scanner.scanTokens();
+		assertEquals("NOT(\"!\") NOT(\"\") EOF(\"\") ", scanner.toString());
+		
+		scanner = new Scanner("!!true");
+		scanner.scanTokens();
+		assertEquals("NOT(\"!\") NOT(\"!\") TRUE(\"true\") EOF(\"\") ", scanner.toString());
+		
+		
+	}
+	
+	
+	
+	
 	@Test
 	void testComments() {
 		Scanner scanner = new Scanner("//test");
@@ -191,6 +229,14 @@ public class ScannerTest {
 		scanner.scanTokens();
 		//since we start at nline = 1
 		assertEquals(4, scanner.getNline());
+		
+		scanner = new Scanner("\n\ntest\n\n");
+		scanner.scanTokens();
+		assertEquals(5, scanner.getNline());
+		
+		scanner = new Scanner("\n\ntest\n\n\n\ntest\n\n\n\ntest\n\n");
+		scanner.scanTokens();
+		assertEquals(13, scanner.getNline());
 		
 		
 	}
