@@ -109,16 +109,19 @@ public class Scanner {
 			}
 			break;
 		case 'r':
-			if (inputMatchesWord("eturn")) {
-				addToken(TokenType.RETURN);
+		case 'n':
+			String word = c == 'r' ? "eturn" : "oth";
+			if (inputMatchesWord(word)) {
+				addToken(c == 'r' ? TokenType.RETURN : TokenType.NOTH);
+				//Reset c to prevent fall through behavior
 				c = '\0';
 			}
 			break;
 		case 't':
-		case 'e':
-			String word = c == 't' ? "rue" : "lse";
+		case 'f':
+			word = c == 't' ? "rue" : "alse";
 			if (inputMatchesWord(word)) {
-				addToken(c == 't' ? TokenType.TRUE : TokenType.ELSE);
+				addToken(c == 't' ? TokenType.TRUE : TokenType.FALSE);
 				c = '\0';
 			}
 			break;
@@ -127,10 +130,16 @@ public class Scanner {
 			word = c == 's' ? "mth" : "oop";
 			if (inputMatchesWord(word)) {
 				addToken(c == 's' ? TokenType.SMTH : TokenType.LOOP);
-				//Reset c to prevent fall through behavior
 				c = '\0';
 			}
 			break;
+		case 'e':
+			if (inputMatchesWord("lse")) {
+				addToken(TokenType.ELSE);
+				c = '\0';
+			}
+			break;
+		
 		case '=':
 			addToken(isNext('=') ? TokenType.EQUALS : TokenType.ASSIGNMENT);
 			break;

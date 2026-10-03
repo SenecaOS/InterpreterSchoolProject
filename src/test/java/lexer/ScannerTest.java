@@ -11,6 +11,44 @@ public class ScannerTest {
 	
 	
 	@Test
+	void testNothKeyword() {
+		
+		Scanner scanner = new Scanner("noth");
+		scanner.scanTokens();
+		assertEquals("NOTH(\"noth\") EOF(\"\") ", scanner.toString());
+		
+		scanner = new Scanner("noth;");
+		scanner.scanTokens();
+		assertEquals("NOTH(\"noth\") TERMINATOR(\";\") EOF(\"\") ", scanner.toString());
+		
+		scanner = new Scanner("notha;");
+		scanner.scanTokens();
+		assertEquals("IDENTIFIER(\"notha\") TERMINATOR(\";\") EOF(\"\") ", scanner.toString());
+		
+		
+	}
+	
+	
+	
+	@Test
+	void testFalseKeyword() {
+		
+		Scanner scanner = new Scanner("false");
+		scanner.scanTokens();
+		assertEquals("FALSE(\"false\") EOF(\"\") ", scanner.toString());
+		
+		scanner = new Scanner("false;");
+		scanner.scanTokens();
+		assertEquals("FALSE(\"false\") TERMINATOR(\";\") EOF(\"\") ", scanner.toString());
+		
+		scanner = new Scanner("falsea;");
+		scanner.scanTokens();
+		assertEquals("IDENTIFIER(\"falsea\") TERMINATOR(\";\") EOF(\"\") ", scanner.toString());
+		
+		
+	}
+	
+	@Test
 	void testReturnKeyword() {
 		
 		Scanner scanner = new Scanner("return");

@@ -34,5 +34,7 @@ public enum TokenType {
 		EQUALS,
 		ELSE,
 		TERMINATOR,
-		RETURN
+		RETURN,
+		NOTH,
+		FALSE
 }
