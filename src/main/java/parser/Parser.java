@@ -66,7 +66,6 @@ public class Parser {
         return left;
     }
 
-
     private Expr comparison() {
         Expr left = term();
 
@@ -80,9 +79,21 @@ public class Parser {
     }
 
     private Expr term() {
-        Expr left = unary();
+        Expr left = factor();
 
         while(match(PLUS, MINUS)) {
+            Token operator = prev();
+            Expr right = factor();
+            left = new Expr.Binary(left, operator, right);
+        }
+
+        return left;
+    }
+
+    private Expr factor() {
+        Expr left = unary();
+
+        while(match(STAR, SLASH)) {
             Token operator = prev();
             Expr right = unary();
             left = new Expr.Binary(left, operator, right);

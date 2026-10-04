@@ -2,9 +2,18 @@ package parser;
 
 import lexer.Token;
 
-public class Expr {
+public abstract class Expr  {
 
-    static class Binary extends Expr {
+    public interface Visitor<R> {
+        R visitBinary(Binary expr);
+        R visitLiteral(Literal expr);
+        R visitUnary(Unary expr);
+        R visitGrouping(Grouping expr);
+    }
+
+    abstract <R> R accept(Visitor<R> visitor);
+
+    public static class Binary extends Expr {
 
         final Expr left;
         final Token operator;
@@ -15,18 +24,28 @@ public class Expr {
             this.operator = operator;
             this.right = right;
         }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitBinary(this);
+        }
     }
 
-    static class Literal extends Expr {
+    public static class Literal extends Expr {
 
         final Object value;
 
         Literal(Object value) {
             this.value = value;
         }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitLiteral(this);
+        }
     }
 
-    static class Unary extends Expr {
+    public static class Unary extends Expr {
 
         final Expr expr;
         final Token operator;
@@ -35,14 +54,24 @@ public class Expr {
             this.operator = Operator;
             this.expr = expr;
         }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitUnary(this);
+        }
     }
 
-    static class Grouping extends Expr {
+    public static class Grouping extends Expr {
 
         final Expr expr;
 
         Grouping(Expr expr) {
             this.expr = expr;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitGrouping(this);
         }
     }
 
