@@ -38,7 +38,6 @@ class ParserTest {
 
     Token rightsqBracket() {return new Token(RIGHT_SQBRACKET, "}", null, 0);}
 
-
     Token print() {
         return new Token(PRINT, "", null, 0);
     }
@@ -50,6 +49,8 @@ class ParserTest {
     Token valueToken(Double value) {
         return new Token(VALUE, value.toString(), value, 0);
     }
+
+    Token createToken(TokenType type, String val) {return new Token(type, val, null, 0);}
 
     Token createToken(TokenType type) {return new Token(type, null, null, 0);}
 
@@ -104,14 +105,14 @@ class ParserTest {
 
     @Test
     void givenValidVariable_ReturnVariableStatement() {
-        List<Token> tokens = List.of(createToken(LET), stringToken("newVariable"), createToken(ASSIGNMENT), valueToken(5.0), end());
+        List<Token> tokens = List.of(createToken(LET), createToken(IDENTIFIER, "newVar"), createToken(ASSIGNMENT), valueToken(5.0), end());
         Parser parser = new Parser(tokens);
-        Assertions.assertEquals("newVariable = 5.0", toPrint(parser.parse()));
+        Assertions.assertEquals("newVar = 5.0", toPrint(parser.parse()));
     }
 
     @Test
     void givenInValidVariable_ReturnVariableStatement() {
-        List<Token> tokens = List.of(createToken(LET), valueToken(3.0), createToken(ASSIGNMENT), stringToken("newVariable"), end());
+        List<Token> tokens = List.of(createToken(LET), valueToken(3.0), createToken(ASSIGNMENT), stringToken("newVar"), end());
         Parser parser = new Parser(tokens);
         assertThrows(IllegalArgumentException.class, parser::parse);
     }
@@ -119,16 +120,16 @@ class ParserTest {
     @Test
     void GivenValidLoop_ReturnLoopStatement() {
         List<Token> tokens = List.of(createToken(LOOP), leftParens(), valueToken(3.0), rightParens(), leftsqBracket(),
-                createToken(LET), stringToken("newVariable"), createToken(ASSIGNMENT), valueToken(5.0),
+                createToken(LET), createToken(IDENTIFIER, "newVar"), createToken(ASSIGNMENT), valueToken(5.0),
                 print(), leftParens(), stringToken("Hello world"), rightParens(),
                 rightsqBracket(), end());
 
         Parser parser = new Parser(tokens);
         String expected = """
                 loop(3.0) {
-                newVariable = 5.0
+                newVar = 5.0
                 print(Hello world)
-                }\s""";
+                }""";
         Assertions.assertEquals(expected, toPrint(parser.parse()));
     }
 

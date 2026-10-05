@@ -10,10 +10,13 @@ import static lexer.TokenType.*;
 
 public class Parser {
 
+    private static final int MAX_DEPTH = 20;
+
     private static final Expr TRUE_EXPR = new Expr.Literal(true);
     private static final Expr FALSE_EXPR = new Expr.Literal(false);
     private static final Expr NULL_EXPR = new Expr.Literal(null);
 
+    private int depth = 0;
     private int current = 0;
     private final List<Token> tokens;
 
@@ -31,6 +34,14 @@ public class Parser {
     }
 
     private Statement getNext() {
+        if (match(LET)) {
+            return variableStatement();
+        }
+
+        if  (match(LOOP)) {
+            return loopStatement();
+        }
+
         if (match(PRINT)) {
             return printStatement();
         }
@@ -38,14 +49,43 @@ public class Parser {
         return expressionStatement();
     }
 
-    private Statement printStatement() {
+    private Statement variableStatement() {
+        Token token = consume(IDENTIFIER, "Expected identifier");
+        consume(ASSIGNMENT, "Expected '=' after variable name");
+        Expr expression = expression();
+        return new Statement.Variable(token.getVal(), expression);
+    }
+
+    private Statement.Loop loopStatement() {
+        consume(LEFT_PARENS, "Expect '(' after loop.");
+        Expr expression = expression();
+        consume(RIGHT_PARENS, "Expect ')' after expression.");
+        Statement.Block block = blockStatement();
+        return  new Statement.Loop(block, expression);
+
+    }
+
+    private Statement.Block blockStatement() {
+        depth++;
+        if (depth >= MAX_DEPTH) throw new IllegalArgumentException("Reached max depth, consider refactoring your code");
+        consume(LEFT_SQBRACKET, "Expected '{' at the start of block statement");
+        List<Statement> statements = new ArrayList<>();
+        while(!check(RIGHT_SQBRACKET)) {
+            statements.add(getNext());
+        }
+        consume(RIGHT_SQBRACKET, "Expected '}'at the end of block statement");
+        depth--;
+        return new Statement.Block(statements);
+    }
+
+    private Statement.Print printStatement() {
         consume(LEFT_PARENS, "Expect '(' after print.");
         Expr expression = expression();
         consume(RIGHT_PARENS, "Expect ')' after expression.");
         return new Statement.Print(expression);
     }
 
-    private Statement expressionStatement() {
+    private Statement.Expression expressionStatement() {
         Expr expression = expression();
         return new Statement.Expression(expression);
     }
@@ -161,12 +201,12 @@ public class Parser {
         return tokens.get(current - 1);
     }
 
-    private void consume(TokenType type, String errorMessage) {
+    private Token consume(TokenType type, String errorMessage) {
         if (check(type)) {
             current++;
-            return;
+            return prev();
         }
 
-        throw new IllegalArgumentException(errorMessage);
+        throw new IllegalArgumentException(errorMessage + ", but got: " + peek());
     }
 }

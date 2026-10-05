@@ -34,7 +34,7 @@ public class AstPrinter implements Expr.Visitor<String>, Statement.Visitor<Strin
 
     @Override
     public String visitPrint(Statement.Print print) {
-        return print.expr.accept(this);
+        return "print(" + print.expr.accept(this) + ")";
     }
 
     @Override
@@ -53,7 +53,7 @@ public class AstPrinter implements Expr.Visitor<String>, Statement.Visitor<Strin
 
     @Override
     public String visitLoop(Statement.Loop loop) {
-    return "(" + loop.condition.accept(this) + ") " +
-                "{\n" + loop.block.accept(this) + "\n}\n";
+    return "loop(" + loop.condition.accept(this) + ") " +
+                "{\n" + loop.block.accept(this) + "}";
     }
 }
