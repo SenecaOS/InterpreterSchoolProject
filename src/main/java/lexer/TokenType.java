@@ -34,5 +34,8 @@ public enum TokenType {
 
     PRINT,
 
+    ASSIGNMENT,
+
+    LOOP
 
 }

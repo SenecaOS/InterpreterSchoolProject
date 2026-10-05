@@ -1,10 +1,15 @@
 package parser;
 
+import java.util.List;
+
 public abstract class Statement {
 
     public interface Visitor<R> {
         R visitExpression(Expression expr);
         R visitPrint(Print print);
+        R visitVariable(Variable variable);
+        R visitBlock(Block block);
+        R visitLoop(Loop loop);
     }
 
     abstract <R> R accept(Visitor<R> visitor);
@@ -37,4 +42,50 @@ public abstract class Statement {
         }
     }
 
+    public static class Variable extends Statement {
+
+        final String name;
+        final Expr value;
+
+        Variable(String name, Expr value) {
+            this.name = name;
+            this.value = value;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitVariable(this);
+        }
+    }
+
+    public static class Block extends Statement {
+
+        final List<Statement> statements;
+
+        Block(List<Statement> statements) {
+            this.statements = statements;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitBlock(this);
+        }
+    }
+
+    public static class Loop extends Statement {
+
+        final Block block;
+        final Expr condition;
+
+
+        public Loop(Block block, Expr condition) {
+            this.block = block;
+            this.condition = condition;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitLoop(this);
+        }
+    }
 }

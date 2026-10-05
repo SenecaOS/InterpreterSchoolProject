@@ -11,6 +11,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import java.util.ArrayList;
 import java.util.List;
 
+import static lexer.TokenType.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ParserTest {
@@ -26,28 +27,31 @@ class ParserTest {
     }
 
     Token leftParens() {
-        return new Token(TokenType.LEFT_PARENS, "(", null, 0);
+        return new Token(LEFT_PARENS, "(", null, 0);
     }
 
     Token rightParens() {
-        return new Token(TokenType.RIGHT_PARENS, ")", null, 0);
+        return new Token(RIGHT_PARENS, ")", null, 0);
     }
 
+    Token leftsqBracket() {return new Token(LEFT_SQBRACKET, "{", null, 0);}
+
+    Token rightsqBracket() {return new Token(RIGHT_SQBRACKET, "}", null, 0);}
+
+
     Token print() {
-        return new Token(TokenType.PRINT, "", null, 0);
+        return new Token(PRINT, "", null, 0);
     }
 
     Token stringToken(String value) {
-        return new Token(TokenType.STRING, "\"" + value + "\"", value, 0);
+        return new Token(STRING, "\"" + value + "\"", value, 0);
     }
 
     Token valueToken(Double value) {
-        return new Token(TokenType.VALUE, value.toString(), value, 0);
+        return new Token(VALUE, value.toString(), value, 0);
     }
 
-    Token createToken(TokenType type, Object literal) {
-        return new Token(type, literal.toString(), literal, 0);
-    }
+    Token createToken(TokenType type) {return new Token(type, null, null, 0);}
 
     Token end() {
         return new Token(TokenType.EOF, "", null, 0);
@@ -55,13 +59,7 @@ class ParserTest {
 
     @Test
     void GivenValidPrint_ReturnPrintStatement() {
-        List<Token> tokens = new ArrayList<>();
-
-        tokens.add(print());
-        tokens.add(leftParens());
-        tokens.add(stringToken("Hello world"));
-        tokens.add(rightParens());
-        tokens.add(end());
+        List<Token> tokens = List.of(print(), leftParens(), stringToken("Hello world"), rightParens(), end());
 
         Parser parser = new Parser(tokens);
         List<Statement> statements = parser.parse();
@@ -70,13 +68,7 @@ class ParserTest {
 
     @Test
     void givenInvalidPrint_ThrowError() {
-        List<Token> tokens = new ArrayList<>();
-        tokens.add(print());
-        tokens.add(leftParens());
-        tokens.add(stringToken("Hello world"));
-        //tokens.add(rightParens());
-        tokens.add(new Token(TokenType.EOF, "", null, 0));
-
+        List<Token> tokens = List.of(print(), leftParens(), stringToken("Hello world"), end());
         Parser parser = new Parser(tokens);
         assertThrows(IllegalArgumentException.class, parser::parse);
     }
@@ -106,6 +98,53 @@ class ParserTest {
     void givenInvalidExpression_ThrowError(String input) {
         Scanner scanner = new Scanner(input);
         List<Token> tokens = scanner.scanTokens();
+        Parser parser = new Parser(tokens);
+        assertThrows(IllegalArgumentException.class, parser::parse);
+    }
+
+    @Test
+    void givenValidVariable_ReturnVariableStatement() {
+        List<Token> tokens = List.of(createToken(LET), stringToken("newVariable"), createToken(ASSIGNMENT), valueToken(5.0), end());
+        Parser parser = new Parser(tokens);
+        Assertions.assertEquals("newVariable = 5.0", toPrint(parser.parse()));
+    }
+
+    @Test
+    void givenInValidVariable_ReturnVariableStatement() {
+        List<Token> tokens = List.of(createToken(LET), valueToken(3.0), createToken(ASSIGNMENT), stringToken("newVariable"), end());
+        Parser parser = new Parser(tokens);
+        assertThrows(IllegalArgumentException.class, parser::parse);
+    }
+
+    @Test
+    void GivenValidLoop_ReturnLoopStatement() {
+        List<Token> tokens = List.of(createToken(LOOP), leftParens(), valueToken(3.0), rightParens(), leftsqBracket(),
+                createToken(LET), stringToken("newVariable"), createToken(ASSIGNMENT), valueToken(5.0),
+                print(), leftParens(), stringToken("Hello world"), rightParens(),
+                rightsqBracket(), end());
+
+        Parser parser = new Parser(tokens);
+        String expected = """
+                loop(3.0) {
+                newVariable = 5.0
+                print(Hello world)
+                }\s""";
+        Assertions.assertEquals(expected, toPrint(parser.parse()));
+    }
+
+    @Test
+    void givenOverMaxSyntaxBlockDepth_throwError() {
+        List<Token> loopStart  = List.of(createToken(LOOP), leftParens(), valueToken(3.0), rightParens(), leftsqBracket());
+        List<Token> tokens = new ArrayList<>();
+        for (int i = 0; i < 30; i++) {
+            tokens.addAll(loopStart);
+        }
+
+        for (int i = 0; i < 30; i++) {
+            tokens.add(rightsqBracket());
+        }
+
+        tokens.add(end());
         Parser parser = new Parser(tokens);
         assertThrows(IllegalArgumentException.class, parser::parse);
     }

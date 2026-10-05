@@ -36,4 +36,24 @@ public class AstPrinter implements Expr.Visitor<String>, Statement.Visitor<Strin
     public String visitPrint(Statement.Print print) {
         return print.expr.accept(this);
     }
+
+    @Override
+    public String visitVariable(Statement.Variable variable) {
+        return variable.name + " = " + variable.value.accept(this);
+    }
+
+    @Override
+    public String visitBlock(Statement.Block block) {
+        StringBuilder sb = new StringBuilder();
+        for (Statement statement : block.statements) {
+            sb.append(print(statement)).append("\n");
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public String visitLoop(Statement.Loop loop) {
+    return "(" + loop.condition.accept(this) + ") " +
+                "{\n" + loop.block.accept(this) + "\n}\n";
+    }
 }
