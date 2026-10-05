@@ -56,4 +56,18 @@ public class AstPrinter implements Expr.Visitor<String>, Statement.Visitor<Strin
     return "loop(" + loop.condition.accept(this) + ") " +
                 "{\n" + loop.block.accept(this) + "}";
     }
+
+    @Override
+    public String visitIf(Statement.If iff) {
+        StringBuilder sb =  new StringBuilder();
+        if (iff.condition != null) {
+            sb.append("if(").append(iff.condition.accept(this)).append(")");
+        }
+        sb.append("{\n").append(iff.block.accept(this)).append("}");
+        if (iff.elseStatement != null) {
+            sb.append("else ").append(iff.elseStatement.accept(this));
+        }
+
+        return sb.toString();
+    }
 }

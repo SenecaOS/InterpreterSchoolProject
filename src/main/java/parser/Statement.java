@@ -10,6 +10,7 @@ public abstract class Statement {
         R visitVariable(Variable variable);
         R visitBlock(Block block);
         R visitLoop(Loop loop);
+        R visitIf(If iff);
     }
 
     abstract <R> R accept(Visitor<R> visitor);
@@ -86,6 +87,24 @@ public abstract class Statement {
         @Override
         <R> R accept(Visitor<R> visitor) {
             return visitor.visitLoop(this);
+        }
+    }
+
+    public static class If extends Statement {
+
+        final Expr condition;
+        final Block block;
+        final If elseStatement;
+
+        public If(Expr condition, Block block, If elseStatement) {
+            this.condition = condition;
+            this.block = block;
+            this.elseStatement = elseStatement;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitIf(this);
         }
     }
 }

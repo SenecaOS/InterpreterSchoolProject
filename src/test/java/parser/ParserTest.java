@@ -34,9 +34,13 @@ class ParserTest {
         return new Token(RIGHT_PARENS, ")", null, 0);
     }
 
-    Token leftsqBracket() {return new Token(LEFT_SQBRACKET, "{", null, 0);}
+    Token leftsqBracket() {
+        return new Token(LEFT_SQBRACKET, "{", null, 0);
+    }
 
-    Token rightsqBracket() {return new Token(RIGHT_SQBRACKET, "}", null, 0);}
+    Token rightsqBracket() {
+        return new Token(RIGHT_SQBRACKET, "}", null, 0);
+    }
 
     Token print() {
         return new Token(PRINT, "", null, 0);
@@ -50,9 +54,13 @@ class ParserTest {
         return new Token(VALUE, value.toString(), value, 0);
     }
 
-    Token createToken(TokenType type, String val) {return new Token(type, val, null, 0);}
+    Token createToken(TokenType type, String val) {
+        return new Token(type, val, null, 0);
+    }
 
-    Token createToken(TokenType type) {return new Token(type, null, null, 0);}
+    Token createToken(TokenType type) {
+        return new Token(type, null, null, 0);
+    }
 
     Token end() {
         return new Token(TokenType.EOF, "", null, 0);
@@ -135,7 +143,7 @@ class ParserTest {
 
     @Test
     void givenOverMaxSyntaxBlockDepth_throwError() {
-        List<Token> loopStart  = List.of(createToken(LOOP), leftParens(), valueToken(3.0), rightParens(), leftsqBracket());
+        List<Token> loopStart = List.of(createToken(LOOP), leftParens(), valueToken(3.0), rightParens(), leftsqBracket());
         List<Token> tokens = new ArrayList<>();
         for (int i = 0; i < 30; i++) {
             tokens.addAll(loopStart);
@@ -149,5 +157,110 @@ class ParserTest {
         Parser parser = new Parser(tokens);
         assertThrows(IllegalArgumentException.class, parser::parse);
     }
+
+    @Test
+    void givenValidIfStatment_ReturnIfStatement() {
+        List<Token> tokens = List.of(
+                createToken(IF), leftParens(), createToken(TRUE), rightParens(), leftsqBracket(),
+                print(), leftParens(), stringToken("Hello world"), rightParens(),
+                rightsqBracket()
+                , end()
+        );
+
+        Parser parser = new Parser(tokens);
+        String expected = """
+                if(TRUE("NULL")) {
+                print(hello world)
+                }""";
+        Assertions.assertEquals(expected, toPrint(parser.parse()));
+    }
+
+
+    @Test
+    void givenValidIfAndElseStatment_ReturnIfStatementWithElse() {
+        List<Token> tokens = List.of(
+                createToken(IF), leftParens(), createToken(TRUE), rightParens(), leftsqBracket(),
+                print(), leftParens(), stringToken("Hello world"), rightParens(),
+                rightsqBracket(), createToken(ELSE), leftsqBracket(),
+                print(), leftParens(), stringToken("Hello world"), rightParens(),
+                rightsqBracket()
+                , end()
+        );
+
+        Parser parser = new Parser(tokens);
+        String expected = """
+                if(TRUE("NULL")) {
+                print(hello world)
+                } else {
+                print(hello world)
+                }""";
+        Assertions.assertEquals(expected, toPrint(parser.parse()));
+    }
+
+    @Test
+    void givenValidElseIfStatment_ReturnIfStatementWithElseIf() {
+        List<Token> tokens = List.of(
+                createToken(IF), leftParens(), createToken(TRUE), rightParens(), leftsqBracket(),
+                print(), leftParens(), stringToken("Hello world"), rightParens(),
+                rightsqBracket(), createToken(ELSE), createToken(IF), leftParens(), createToken(TRUE), rightParens(), leftsqBracket(),
+                print(), leftParens(), stringToken("Hello world"), rightParens(),
+                rightsqBracket(), createToken(ELSE), leftsqBracket(),
+                print(), leftParens(), stringToken("Hello world"), rightParens(),
+                rightsqBracket()
+                , end()
+        );
+
+        Parser parser = new Parser(tokens);
+        String expected = """
+                if(TRUE("NULL")) {
+                print(hello world)
+                } else if(TRUE("NULL")) {
+                print(hello world)
+                } else {
+                print(hello world)
+                }""";
+        Assertions.assertEquals(expected, toPrint(parser.parse()));
+    }
+
+    @Test
+    void givenElseInsteadOfIf_throwError() {
+        List<Token> tokens = List.of(createToken(ELSE), leftParens(), createToken(TRUE), rightParens(), leftsqBracket(),
+                print(), leftParens(), stringToken("Hello world"), rightParens(),
+                rightsqBracket()
+        );
+
+        Parser parser = new Parser(tokens);
+        Assertions.assertThrows(IllegalArgumentException.class, parser::parse);
+    }
+
+    @Test
+    void givenIfWithNoCondition_throwError() {
+        List<Token> tokens = List.of(
+                createToken(IF), leftParens(), rightParens(), leftsqBracket(),
+                print(), leftParens(), stringToken("Hello world"), rightParens(),
+                rightsqBracket()
+                , end()
+        );
+
+        Parser parser = new Parser(tokens);
+        Assertions.assertThrows(IllegalArgumentException.class, parser::parse);
+    }
+
+    @Test
+    void givenIfWithNoBlock_throwError() {
+        List<Token> tokens = List.of(
+                createToken(IF), leftParens(), createToken(TRUE), rightParens(), leftsqBracket(),
+                rightsqBracket()
+                , end()
+        );
+
+        Parser parser = new Parser(tokens);
+        String expected = """
+                if(TRUE("NULL")) {
+                print(hello world)
+                }""";
+        Assertions.assertEquals(expected, toPrint(parser.parse()));
+    }
+
 
 }

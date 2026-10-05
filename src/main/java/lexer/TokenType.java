@@ -36,6 +36,8 @@ public enum TokenType {
 
     ASSIGNMENT,
 
-    LOOP
+    LOOP,
+
+    ELSE
 
 }
