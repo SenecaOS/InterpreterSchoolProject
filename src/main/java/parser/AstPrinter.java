@@ -72,4 +72,9 @@ public class AstPrinter implements Expr.Visitor<String>, Statement.Visitor<Strin
 
         return sb.toString();
     }
+
+    @Override
+    public String visitReturn(Statement.Return ret) {
+        return "return" + (ret.value != null ? " " + ret.value.accept(this) : "");
+    }
 }

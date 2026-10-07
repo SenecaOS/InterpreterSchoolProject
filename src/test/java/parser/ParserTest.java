@@ -258,5 +258,20 @@ class ParserTest {
         Assertions.assertThrows(IllegalArgumentException.class, parser::parse);
     }
 
+    @Test
+    void givenReturnWithExpression_returnReturnStatement() {
+        List<Token> tokens = List.of(createToken(RETURN), valueToken(3.0), end());
+        Parser parser = new Parser(tokens);
+        String expected = "return 3.0";
+        Assertions.assertEquals(expected, toPrint(parser.parse()));
+    }
+
+    @Test
+    void givenReturnWithNoExpression_returnReturnStatementWithNull() {
+        List<Token> tokens = List.of(createToken(RETURN), rightsqBracket(), end());
+        Parser parser = new Parser(tokens);
+        String expected = "return";
+        Assertions.assertEquals(expected, toPrint(parser.parse()));
+    }
 
 }

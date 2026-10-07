@@ -38,6 +38,7 @@ public enum TokenType {
 
     LOOP,
 
-    ELSE
+    ELSE,
 
+    RETURN
 }

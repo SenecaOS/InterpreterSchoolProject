@@ -11,6 +11,7 @@ public abstract class Statement {
         R visitBlock(Block block);
         R visitLoop(Loop loop);
         R visitIf(If iff);
+        R visitReturn(Return ret);
     }
 
     abstract <R> R accept(Visitor<R> visitor);
@@ -105,6 +106,20 @@ public abstract class Statement {
         @Override
         <R> R accept(Visitor<R> visitor) {
             return visitor.visitIf(this);
+        }
+    }
+
+    public static class Return extends Statement {
+
+        final Expr value;
+
+        public Return(Expr value) {
+            this.value = value;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitReturn(this);
         }
     }
 }
