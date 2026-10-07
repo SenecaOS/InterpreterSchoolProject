@@ -77,4 +77,9 @@ public class AstPrinter implements Expr.Visitor<String>, Statement.Visitor<Strin
     public String visitReturn(Statement.Return ret) {
         return "return" + (ret.value != null ? " " + ret.value.accept(this) : "");
     }
+
+    @Override
+    public String visitFunction(Statement.Function function) {
+        return "function " + function.name + "(" + function.params + ")\n" + function.block.accept(this);
+    }
 }

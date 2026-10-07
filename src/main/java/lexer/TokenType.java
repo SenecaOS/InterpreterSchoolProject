@@ -40,5 +40,9 @@ public enum TokenType {
 
     ELSE,
 
-    RETURN
+    RETURN,
+
+    FUNCTION,
+
+    COMMA,
 }

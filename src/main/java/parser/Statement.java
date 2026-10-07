@@ -12,6 +12,7 @@ public abstract class Statement {
         R visitLoop(Loop loop);
         R visitIf(If iff);
         R visitReturn(Return ret);
+        R visitFunction(Function function);
     }
 
     abstract <R> R accept(Visitor<R> visitor);
@@ -120,6 +121,24 @@ public abstract class Statement {
         @Override
         <R> R accept(Visitor<R> visitor) {
             return visitor.visitReturn(this);
+        }
+    }
+
+    public static class Function extends Statement {
+
+        final String name;
+        final Block block;
+        final List<String> params;
+
+        public Function(String name, Block block, List<String> params) {
+            this.name = name;
+            this.block = block;
+            this.params = params;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitFunction(this);
         }
     }
 }
