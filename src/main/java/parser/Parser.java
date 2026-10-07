@@ -38,6 +38,10 @@ public class Parser {
             return variableStatement();
         }
 
+        if (match(IF)) {
+            return ifStatement();
+        }
+
         if  (match(LOOP)) {
             return loopStatement();
         }
@@ -63,6 +67,25 @@ public class Parser {
         Statement.Block block = blockStatement();
         return  new Statement.Loop(block, expression);
 
+    }
+
+    private Statement.If ifStatement() {
+        consume(LEFT_PARENS, "Expect '(' after loop.");
+        Expr expression = expression();
+        consume(RIGHT_PARENS, "Expect ')' after expression.");
+        Statement.Block block = blockStatement();
+        Statement elseStatement = null;
+
+        if (match(ELSE)) {
+            if (match(IF)) {
+                elseStatement = ifStatement();
+            } else {
+                elseStatement = blockStatement();
+            }
+
+        }
+
+        return new Statement.If(expression, block, elseStatement);
     }
 
     private Statement.Block blockStatement() {

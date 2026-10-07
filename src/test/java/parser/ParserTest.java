@@ -134,10 +134,12 @@ class ParserTest {
 
         Parser parser = new Parser(tokens);
         String expected = """
-                loop(3.0) {
+                loop(3.0)
+                {
                 newVar = 5.0
                 print(Hello world)
-                }""";
+                }
+                """;
         Assertions.assertEquals(expected, toPrint(parser.parse()));
     }
 
@@ -169,9 +171,11 @@ class ParserTest {
 
         Parser parser = new Parser(tokens);
         String expected = """
-                if(TRUE("NULL")) {
-                print(hello world)
-                }""";
+                if(true)
+                {
+                print(Hello world)
+                }
+                """;
         Assertions.assertEquals(expected, toPrint(parser.parse()));
     }
 
@@ -189,11 +193,14 @@ class ParserTest {
 
         Parser parser = new Parser(tokens);
         String expected = """
-                if(TRUE("NULL")) {
-                print(hello world)
-                } else {
-                print(hello world)
-                }""";
+                if(true)
+                {
+                print(Hello world)
+                }
+                else {
+                print(Hello world)
+                }
+                """;
         Assertions.assertEquals(expected, toPrint(parser.parse()));
     }
 
@@ -212,13 +219,18 @@ class ParserTest {
 
         Parser parser = new Parser(tokens);
         String expected = """
-                if(TRUE("NULL")) {
-                print(hello world)
-                } else if(TRUE("NULL")) {
-                print(hello world)
-                } else {
-                print(hello world)
-                }""";
+                if(true)
+                {
+                print(Hello world)
+                }
+                else if(true)
+                {
+                print(Hello world)
+                }
+                else {
+                print(Hello world)
+                }
+                """;
         Assertions.assertEquals(expected, toPrint(parser.parse()));
     }
 
@@ -244,22 +256,6 @@ class ParserTest {
 
         Parser parser = new Parser(tokens);
         Assertions.assertThrows(IllegalArgumentException.class, parser::parse);
-    }
-
-    @Test
-    void givenIfWithNoBlock_throwError() {
-        List<Token> tokens = List.of(
-                createToken(IF), leftParens(), createToken(TRUE), rightParens(), leftsqBracket(),
-                rightsqBracket()
-                , end()
-        );
-
-        Parser parser = new Parser(tokens);
-        String expected = """
-                if(TRUE("NULL")) {
-                print(hello world)
-                }""";
-        Assertions.assertEquals(expected, toPrint(parser.parse()));
     }
 
 

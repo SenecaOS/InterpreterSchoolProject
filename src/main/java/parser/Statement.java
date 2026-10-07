@@ -94,12 +94,12 @@ public abstract class Statement {
 
         final Expr condition;
         final Block block;
-        final If elseStatement;
+        final Statement statement;
 
-        public If(Expr condition, Block block, If elseStatement) {
+        public If(Expr condition, Block block, Statement statement) {
             this.condition = condition;
             this.block = block;
-            this.elseStatement = elseStatement;
+            this.statement = statement;
         }
 
         @Override
