@@ -38,6 +38,10 @@ public class Parser {
             return variableStatement();
         }
 
+        if (match(RETURN)) {
+            return returnStatement();
+        }
+
         if (match(IF)) {
             return ifStatement();
         }
@@ -53,11 +57,19 @@ public class Parser {
         return expressionStatement();
     }
 
-    private Statement variableStatement() {
+    private Statement.Variable variableStatement() {
         Token token = consume(IDENTIFIER, "Expected identifier");
         consume(ASSIGNMENT, "Expected '=' after variable name");
         Expr expression = expression();
         return new Statement.Variable(token.getVal(), expression);
+    }
+
+    private Statement.Return returnStatement() {
+        Expr expression = null;
+        try {
+            expression = expression();
+        } catch (IllegalArgumentException ignored) {}
+        return new Statement.Return(expression);
     }
 
     private Statement.Loop loopStatement() {

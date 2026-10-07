@@ -268,9 +268,20 @@ class ParserTest {
 
     @Test
     void givenReturnWithNoExpression_returnReturnStatementWithNull() {
-        List<Token> tokens = List.of(createToken(RETURN), rightsqBracket(), end());
+        List<Token> tokens = List.of(
+                createToken(IF), leftParens(), createToken(TRUE), rightParens(), leftsqBracket(),
+                print(), leftParens(), stringToken("Hello world"), rightParens(),
+                createToken(RETURN),
+                rightsqBracket()
+                , end());
         Parser parser = new Parser(tokens);
-        String expected = "return";
+        String expected = """
+                if(true)
+                {
+                print(Hello world)
+                return
+                }
+                """;
         Assertions.assertEquals(expected, toPrint(parser.parse()));
     }
 
