@@ -302,7 +302,7 @@ class ParserTest {
         List<Token> tokens = List.of(createToken(FUNCTION), identifier("foo"), leftParens(), rightParens(), leftsqBracket(), rightsqBracket(), end());
         Parser parser = new Parser(tokens);
         String expected = """
-                function foo()
+                function foo([])
                 {
                 }
                 """;
@@ -317,7 +317,7 @@ class ParserTest {
         List<Token> tokens = List.of(createToken(FUNCTION), identifier("bar"), leftParens(), identifier("val"), rightParens(), leftsqBracket(), rightsqBracket(), end());
         Parser parser = new Parser(tokens);
         String expected = """
-                function bar({val})
+                function bar([val])
                 {
                 }
                 """;
@@ -331,13 +331,13 @@ class ParserTest {
         List<Token> tokens = List.of(createToken(FUNCTION), identifier("bar"), leftParens(), identifier("val"), createToken(COMMA), identifier("val1"), createToken(COMMA), identifier("val2"), rightParens(), leftsqBracket(), rightsqBracket(), end());
         Parser parser = new Parser(tokens);
         String expected = """
-                function bar({val, val1, val2})
+                function bar([val, val1, val2])
                 {
                 }
                 """;
         List<Statement> statements = parser.parse();
         Assertions.assertEquals(expected, toPrint(statements));
-        Assertions.assertEquals(1, getArity(statements.get(0)));
+        Assertions.assertEquals(3, getArity(statements.get(0)));
     }
 
     @Test

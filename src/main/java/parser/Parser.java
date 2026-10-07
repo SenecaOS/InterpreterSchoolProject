@@ -11,6 +11,7 @@ import static lexer.TokenType.*;
 public class Parser {
 
     private static final int MAX_DEPTH = 20;
+    private static final int MAX_ARITY = 20;
 
     private static final Expr TRUE_EXPR = new Expr.Literal(true);
     private static final Expr FALSE_EXPR = new Expr.Literal(false);
@@ -34,6 +35,11 @@ public class Parser {
     }
 
     private Statement getNext() {
+
+        if (match(FUNCTION)) {
+            return functionStatement();
+        }
+
         if (match(LET)) {
             return variableStatement();
         }
@@ -55,6 +61,30 @@ public class Parser {
         }
 
         return expressionStatement();
+    }
+
+    private Statement.Function functionStatement() {
+        String name = consume(IDENTIFIER, "Expected identifier").getVal();
+        consume(LEFT_PARENS, "Expect '(' after identifier.");
+
+        List<String> params = new ArrayList<>();
+
+        if (match(IDENTIFIER)) {
+
+            params.add(prev().getVal());
+
+            while(match(COMMA)) {
+                String paramName =  consume(IDENTIFIER, "Expected identifier").getVal();
+                if (params.contains(paramName)) throw new IllegalArgumentException("Duplicate parameter: " + paramName);
+                params.add(paramName);
+
+                if (params.size() > MAX_ARITY) throw new IllegalArgumentException("Too many parameters for function: " + name);
+            }
+        }
+        
+        consume(RIGHT_PARENS, "Expect ')' after expression.");
+        Statement.Block block = blockStatement();
+        return new Statement.Function(name, block, params);
     }
 
     private Statement.Variable variableStatement() {
