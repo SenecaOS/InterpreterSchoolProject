@@ -28,6 +28,16 @@ public class AstPrinter implements Expr.Visitor<String>, Statement.Visitor<Strin
     }
 
     @Override
+    public String visitCall(Expr.Call expr) {
+        return "call: " + expr.name + "(" + expr.args + ")";
+    }
+
+    @Override
+    public String visitVariable(Expr.Variable expr) {
+        return "var: " + expr.name;
+    }
+
+    @Override
     public String visitExpression(Statement.Expression expr) {
         return expr.expression.accept(this);
     }

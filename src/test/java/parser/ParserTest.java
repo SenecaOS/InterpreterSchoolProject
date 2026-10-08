@@ -383,4 +383,47 @@ class ParserTest {
         Assertions.assertThrows(IllegalArgumentException.class, parser::parse);
     }
 
+    @Test
+    void givenValidEmptyCall_returnCallExpression() {
+        List<Token> tokens = List.of(identifier("bar"), leftParens(), rightParens(), end());
+        Parser parser = new Parser(tokens);
+        String expected = """
+                call: bar([])
+        """;
+        List<Statement> statements = parser.parse();
+        Assertions.assertEquals(expected, toPrint(statements));
+    }
+
+    @Test
+    void givenValidArity1Call_returnCallExpressionWithArity1() {
+        List<Token> tokens = List.of(identifier("bar"), leftParens(), identifier("val"), rightParens(), end());
+        Parser parser = new Parser(tokens);
+        String expected = """
+                call: bar([val])
+        """;
+        List<Statement> statements = parser.parse();
+        Assertions.assertEquals(expected, toPrint(statements));
+    }
+
+    @Test
+    void givenValidArity3Call_returnCallExpressionWithArity3() {
+        List<Token> tokens = List.of(identifier("bar"), leftParens(), identifier("val"), createToken(COMMA), identifier("val"), createToken(COMMA), identifier("val"), rightParens(), end());
+        Parser parser = new Parser(tokens);
+        String expected = """
+                call: bar([val, val, val])
+        """;
+        List<Statement> statements = parser.parse();
+        Assertions.assertEquals(expected, toPrint(statements));
+    }
+
+    @Test
+    void givenValidVariable_returnVariableExpression() {
+        List<Token> tokens = List.of(identifier("bar"), end());
+        Parser parser = new Parser(tokens);
+        String expected = """
+                var: bar
+        """;
+        List<Statement> statements = parser.parse();
+        Assertions.assertEquals(expected, toPrint(statements));
+    }
 }
