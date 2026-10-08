@@ -396,10 +396,10 @@ class ParserTest {
 
     @Test
     void givenValidArity1Call_returnCallExpressionWithArity1() {
-        List<Token> tokens = List.of(identifier("bar"), leftParens(), identifier("val"), rightParens(), end());
+        List<Token> tokens = List.of(identifier("bar"), leftParens(), valueToken(1.0), createToken(PLUS), valueToken(2.0), rightParens(), end());
         Parser parser = new Parser(tokens);
         String expected = """
-                call: bar([val])
+                call: bar([1+2])
         """;
         List<Statement> statements = parser.parse();
         Assertions.assertEquals(expected, toPrint(statements));
@@ -407,10 +407,10 @@ class ParserTest {
 
     @Test
     void givenValidArity3Call_returnCallExpressionWithArity3() {
-        List<Token> tokens = List.of(identifier("bar"), leftParens(), identifier("val"), createToken(COMMA), identifier("val"), createToken(COMMA), identifier("val"), rightParens(), end());
+        List<Token> tokens = List.of(identifier("bar"), leftParens(), createToken(TRUE), createToken(COMMA), createToken(MINUS), valueToken(5.0), createToken(COMMA), identifier("foo"), leftParens(), identifier("num"), rightParens(), rightParens(), end());
         Parser parser = new Parser(tokens);
         String expected = """
-                call: bar([val, val, val])
+                call: bar([true, -5.0, call: foo([var: num])])
         """;
         List<Statement> statements = parser.parse();
         Assertions.assertEquals(expected, toPrint(statements));
