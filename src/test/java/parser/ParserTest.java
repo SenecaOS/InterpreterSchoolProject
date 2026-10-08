@@ -125,14 +125,14 @@ class ParserTest {
 
     @Test
     void givenValidVariable_ReturnVariableStatement() {
-        List<Token> tokens = List.of(createToken(LET), createToken(IDENTIFIER, "newVar"), createToken(ASSIGNMENT), valueToken(5.0), end());
+        List<Token> tokens = List.of(createToken(SMTH), createToken(IDENTIFIER, "newVar"), createToken(ASSIGNMENT), valueToken(5.0), end());
         Parser parser = new Parser(tokens);
         Assertions.assertEquals("newVar = 5.0", toPrint(parser.parse()));
     }
 
     @Test
     void givenInValidVariable_ReturnVariableStatement() {
-        List<Token> tokens = List.of(createToken(LET), valueToken(3.0), createToken(ASSIGNMENT), stringToken("newVar"), end());
+        List<Token> tokens = List.of(createToken(SMTH), valueToken(3.0), createToken(ASSIGNMENT), stringToken("newVar"), end());
         Parser parser = new Parser(tokens);
         assertThrows(IllegalArgumentException.class, parser::parse);
     }
@@ -140,7 +140,7 @@ class ParserTest {
     @Test
     void GivenValidLoop_ReturnLoopStatement() {
         List<Token> tokens = List.of(createToken(LOOP), leftParens(), valueToken(3.0), rightParens(), leftsqBracket(),
-                createToken(LET), createToken(IDENTIFIER, "newVar"), createToken(ASSIGNMENT), valueToken(5.0),
+                createToken(SMTH), createToken(IDENTIFIER, "newVar"), createToken(ASSIGNMENT), valueToken(5.0),
                 print(), leftParens(), stringToken("Hello world"), rightParens(),
                 rightsqBracket(), end());
 

@@ -2,47 +2,50 @@ package lexer;
 
 public enum TokenType {
 
-    LET,
-    FOR,
-    WHILE,
-    DO,
+    LOOP,
     IF,
     IDENTIFIER,
     VALUE,
+
     PLUS,
     MINUS,
+
     LEFT_PARENS,
     RIGHT_PARENS,
+
     LEFT_SQBRACKET,
     RIGHT_SQBRACKET,
+
     LEFT_CURLYBRAC,
     RIGHT_CURLYBRAC,
+
     STAR,
     SEMICOLON,
     DOT,
     SLASH,
     EOF,
     STRING,
-
     NOT,
+    NOT_EQUALS,
+    OR,
+    AND,
 
-    NOT_EQUAL, IS_EQUAL,
+    LESSER,
+    GREATER,
+    GREATER_EQUALS,
+    LESS_EQUALS,
 
-    GREATER, GREATER_EQUAL, LESS, LESS_EQUAL,
-
-    TRUE, FALSE, NULL,
-
-    PRINT,
-
+    SMTH,
+    TRUE,
     ASSIGNMENT,
-
-    LOOP,
-
+    EQUALS,
     ELSE,
-
+    TERMINATOR,
     RETURN,
-
-    FUNCTION,
+    NOTH,
+    FALSE,
 
     COMMA,
+    PRINT,
+    FUNCTION
 }

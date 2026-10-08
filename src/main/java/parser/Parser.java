@@ -40,7 +40,7 @@ public class Parser {
             return functionStatement();
         }
 
-        if (match(LET)) {
+        if (match(SMTH)) {
             return variableStatement();
         }
 
@@ -162,7 +162,7 @@ public class Parser {
     private Expr equality() {
         Expr left = comparison();
 
-        while(match(NOT_EQUAL, IS_EQUAL)) {
+        while(match(NOT_EQUALS, EQUALS)) {
             Token operator = prev();
             Expr right = comparison();
             left = new Expr.Binary(left, operator, right);
@@ -174,7 +174,7 @@ public class Parser {
     private Expr comparison() {
         Expr left = term();
 
-        while(match(GREATER, LESS, GREATER_EQUAL, LESS_EQUAL)) {
+        while(match(GREATER, LESSER, GREATER_EQUALS, LESS_EQUALS)) {
             Token operator = prev();
             Expr right = term();
             left = new Expr.Binary(left, operator, right);
@@ -225,7 +225,7 @@ public class Parser {
 
         if (match(TRUE)) return TRUE_EXPR;
         if (match(FALSE)) return FALSE_EXPR;
-        if (match(NULL)) return NULL_EXPR;
+        if (match(NOTH)) return NULL_EXPR;
 
         if (match(LEFT_PARENS)) {
             Expr expression = expression();
