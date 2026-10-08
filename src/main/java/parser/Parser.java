@@ -233,10 +233,35 @@ public class Parser {
             return new Expr.Grouping(expression);
         }
 
+        if (match(IDENTIFIER)) {
+            return call();
+        }
+
         Token latest = peek();
         throw new IllegalArgumentException("Cant parse expression at: " + latest);
     }
 
+    private Expr call() {
+        String name = prev().getVal();
+
+        if (!check(LEFT_PARENS)) {
+            return new Expr.Variable(name);
+        }
+
+        List<Expr> arguments = new ArrayList<>();
+        consume(LEFT_PARENS, "Expect '(' after identifier.");
+
+        if (!check(RIGHT_PARENS)) {
+
+            do {
+                arguments.add(expression());
+            } while (match(COMMA));
+        }
+
+        consume(RIGHT_PARENS, "Expect ')' after expression.");
+
+        return new Expr.Call(name, arguments);
+    }
 
     private boolean match(TokenType... types) {
         for (TokenType type : types) {

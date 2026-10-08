@@ -1,9 +1,23 @@
 package parser;
 
+import java.util.List;
+
 public class AstPrinter implements Expr.Visitor<String>, Statement.Visitor<String> {
 
     public String print(Statement statement) {
         return statement.accept(this);
+    }
+
+    private String toPrintableList(List<Expr> exprs) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (int i = 0; i < exprs.size(); i++) {
+            if (i != 0) sb.append(", ");
+            sb.append(exprs.get(i).accept(this));
+        }
+        sb.append("]");
+
+        return sb.toString();
     }
 
     @Override
@@ -29,7 +43,7 @@ public class AstPrinter implements Expr.Visitor<String>, Statement.Visitor<Strin
 
     @Override
     public String visitCall(Expr.Call expr) {
-        return "call: " + expr.name + "(" + expr.args + ")";
+        return "call: " + expr.name + "(" + toPrintableList(expr.args) + ")";
     }
 
     @Override
