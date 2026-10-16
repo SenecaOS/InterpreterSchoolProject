@@ -89,8 +89,9 @@ public class Parser {
 
     private Statement.Variable variableStatement() {
         Token token = consume(IDENTIFIER, "Expected identifier");
-        consume(ASSIGNMENT, "Expected '=' after variable name");
+        consume(ASSIGNMENT, "Expected '=' after variable name.");
         Expr expression = expression();
+        consume(TERMINATOR, "Expected ';' after expression.");
         return new Statement.Variable(token.getVal(), expression);
     }
 
@@ -99,6 +100,7 @@ public class Parser {
         try {
             expression = expression();
         } catch (IllegalArgumentException ignored) {}
+        consume(TERMINATOR, "Expected ';' after expression.");
         return new Statement.Return(expression);
     }
 
@@ -147,11 +149,13 @@ public class Parser {
         consume(LEFT_PARENS, "Expect '(' after print.");
         Expr expression = expression();
         consume(RIGHT_PARENS, "Expect ')' after expression.");
+        consume(TERMINATOR, "Expected ';' after ).");
         return new Statement.Print(expression);
     }
 
     private Statement.Expression expressionStatement() {
         Expr expression = expression();
+        consume(TERMINATOR, "Expected ';' after expression.");
         return new Statement.Expression(expression);
     }
 
