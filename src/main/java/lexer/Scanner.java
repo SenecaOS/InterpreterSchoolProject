@@ -3,6 +3,7 @@ package lexer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 public class Scanner {
@@ -11,9 +12,27 @@ public class Scanner {
 	private int start = 0;
 	private int current = 0;
 	private int nline = 1;
+	private static final HashMap<String, TokenType> reservedWords;
+	
+	
+	static {
+        reservedWords = new HashMap<>();
+        reservedWords.put("return", TokenType.RETURN);
+        reservedWords.put("loop", TokenType.LOOP);
+        reservedWords.put("print", TokenType.PRINT);
+        reservedWords.put("smth", TokenType.SMTH);
+        reservedWords.put("interrupt", TokenType.INTERRUPT);
+        reservedWords.put("true", TokenType.TRUE);
+        reservedWords.put("false", TokenType.FALSE);
+        reservedWords.put("noth", TokenType.NOTH);
+        reservedWords.put("else", TokenType.ELSE);
+        reservedWords.put("if", TokenType.IF);
+    }
+	
 
 	public Scanner(String source) {
 		this.source = source;
+		
 
 	}
 
@@ -51,6 +70,7 @@ public class Scanner {
 		case ' ':
 		case '\r':
 		case '\t':
+		case '\\':
 			// we ignore white space
 			break;
 		case ';':
@@ -101,6 +121,7 @@ public class Scanner {
 		case '&':
 			addToken(TokenType.AND);
 			break;
+			/*
 		case 'i':
 			if (!isAnumAfterWord("f")  && isNext('f')) {
 				addToken(TokenType.IF);
@@ -139,7 +160,7 @@ public class Scanner {
 				c = '\0';
 			}
 			break;
-		
+		*/ //FOR WHENEVER WE WANT TO TEST THE ALTERNATIVE APPROACH WITHOUT USING HASHMAP (see commented out method below)
 		case '=':
 			addToken(isNext('=') ? TokenType.EQUALS : TokenType.ASSIGNMENT);
 			break;
@@ -189,6 +210,22 @@ public class Scanner {
 	}
 
 	private void lexNum() {
+		String[] opBlankSepVals = source.substring(start).split("[ \\t\n*/=()+\\-\\[\\]]+");
+		String num = opBlankSepVals[0];
+		//try {
+			// If we reach EOF without reading the terminating '"'
+			if (num.matches("[0-9]+(\\.[0-9]*)?")) {
+				current += num.length() - 1;
+				addToken(TokenType.VALUE, Double.parseDouble(source.substring(start, current)));
+			} else
+				throw new IllegalArgumentException("Illegal token input on line " + nline);
+
+		/*} catch (IllegalArgumentException e) {
+			System.err.println(e.getMessage());
+		}*/
+		
+		
+		/*
 		int currChar = source.charAt(current - 1);
 		while (peek() != '\0' && !isBlank(peek())) {
 			currChar = advance();
@@ -199,9 +236,9 @@ public class Scanner {
 		if (!isNum(currChar) && !isAtEnd()) {
 			throw new IllegalArgumentException("Incorrect value format on line " + nline);
 		}
-		addToken(TokenType.VALUE, Double.parseDouble(source.substring(start, current)));
+		addToken(TokenType.VALUE, Double.parseDouble(source.substring(start, current)));*/
 	}
-
+/* FOR ALTERNATIVE TESTING WITHOUT HASHMAP
 	private boolean inputMatchesWord(String word) {
 	
 		if(isAnumAfterWord(word) || current + word.length() > source.length()) return false;
@@ -213,7 +250,7 @@ public class Scanner {
 		}	
 		return false;
 	}
-	
+
 	private void consumeRemainingLetters(String word) {
 		
 		for (int i = 0; i < word.length(); i++) {
@@ -228,8 +265,9 @@ public class Scanner {
 		int inspectedIndex = current + word.length(); //4
 		return inspectedIndex <= source.length() - 1 && isAnum(source.charAt(inspectedIndex));
 		
+		
 	}
-	
+	*/
 
 	private void lexString() {
 		while (!isAtEnd() && peek() != '"') {
@@ -237,11 +275,15 @@ public class Scanner {
 				++nline;
 			advance();
 		}
-
+		//try {
 		// If we reach EOF without reading the terminating '"'
 		if (peek() != '"') {
 			throw new IllegalArgumentException("Unterminated string on line " + nline);
 		}
+		/*}catch(IllegalArgumentException e) {
+			System.err.println(e.getMessage());
+			
+		}*/
 
 		// consume '"'
 		advance();
@@ -249,8 +291,10 @@ public class Scanner {
 		// Strip '"' at start and end of substring
 		addToken(TokenType.STRING, source.substring(start + 1, current - 1));
 	}
-
-	private void lexIdentifier() {
+	
+	/* FOR WHENEVER WE WANT TO TEST THE ALTERNATIVE APPROACH WITHOUT USING HASHMAP
+	 
+	 * private void lexIdentifier() {
 
 		while (!isAtEnd() && isAnum(peek())) {
 			advance();
@@ -262,6 +306,21 @@ public class Scanner {
 		}
 		addToken(TokenType.IDENTIFIER);
 	}
+
+	 */
+
+	private void lexIdentifier() {
+        String[] blankSeparatedVals = source.substring(start).split("[ \\t\\}\\(\\)\\/\\=\\-\\;\\+\\*\\\n\\>\\<]+");
+        String identifier = blankSeparatedVals[0];
+        current = start;
+        current += identifier.length();
+        TokenType type = null;
+        if((type = reservedWords.get(identifier)) != null) { 
+        	addToken(type, source.substring(start + 1, current - 1));
+        	return;
+        }
+        addToken(TokenType.IDENTIFIER, source.substring(start + 1, current - 1));
+    }
 
 	private boolean isAnum(int c) {
 		return isNum(c) || isAlpha(c);
