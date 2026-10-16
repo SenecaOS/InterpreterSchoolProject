@@ -21,8 +21,15 @@ public class Parser {
     private int current = 0;
     private final List<Token> tokens;
 
-    public Parser(List<Token> tokens) {
+    private ExceptionHandler exceptionHandler;
+
+    public Parser(List<Token> tokens, ExceptionHandler exceptionHandler) {
         this.tokens = tokens;
+        this.exceptionHandler = exceptionHandler;
+    }
+
+    public Parser(List<Token> tokens) {
+        this(tokens, null);
     }
 
     public List<Statement> parse() {

@@ -95,7 +95,7 @@ class ParserTest {
     void givenInvalidPrint_ThrowError() {
         List<Token> tokens = List.of(print(), leftParens(), stringToken("Hello world"), terminator(), end());
         Parser parser = new Parser(tokens);
-        assertThrows(IllegalArgumentException.class, parser::parse);
+        assertThrows(ParserException.class, parser::parse);
     }
 
     @ParameterizedTest
@@ -124,7 +124,7 @@ class ParserTest {
         Scanner scanner = new Scanner(input);
         List<Token> tokens = scanner.scanTokens();
         Parser parser = new Parser(tokens);
-        assertThrows(IllegalArgumentException.class, parser::parse);
+        assertThrows(ParserException.class, parser::parse);
     }
 
     @Test
@@ -138,7 +138,7 @@ class ParserTest {
     void givenInValidVariable_ReturnVariableStatement() {
         List<Token> tokens = List.of(createToken(SMTH), valueToken(3.0), createToken(ASSIGNMENT), stringToken("newVar"), terminator(), end());
         Parser parser = new Parser(tokens);
-        assertThrows(IllegalArgumentException.class, parser::parse);
+        assertThrows(ParserException.class, parser::parse);
     }
 
     @Test
@@ -173,7 +173,7 @@ class ParserTest {
 
         tokens.add(end());
         Parser parser = new Parser(tokens);
-        assertThrows(IllegalArgumentException.class, parser::parse);
+        assertThrows(ParserException.class, parser::parse);
     }
 
     @Test
@@ -258,7 +258,7 @@ class ParserTest {
         );
 
         Parser parser = new Parser(tokens);
-        Assertions.assertThrows(IllegalArgumentException.class, parser::parse);
+        Assertions.assertThrows(ParserException.class, parser::parse);
     }
 
     @Test
@@ -271,7 +271,7 @@ class ParserTest {
         );
 
         Parser parser = new Parser(tokens);
-        Assertions.assertThrows(IllegalArgumentException.class, parser::parse);
+        Assertions.assertThrows(ParserException.class, parser::parse);
     }
 
     @Test
@@ -348,7 +348,7 @@ class ParserTest {
     void givenFunctionWithNoName_throwError() {
         List<Token> tokens = List.of(createToken(FUNCTION), leftParens(), identifier("val"), rightParens(), leftsqBracket(), rightsqBracket(), end());
         Parser parser = new Parser(tokens);
-        Assertions.assertThrows(IllegalArgumentException.class, parser::parse);
+        Assertions.assertThrows(ParserException.class, parser::parse);
     }
 
     @Test
@@ -356,7 +356,7 @@ class ParserTest {
         List<Token> tokens = new ArrayList<>(List.of(createToken(FUNCTION), identifier("bar"), leftParens(), createToken(COMMA), identifier("val"), rightParens(), leftsqBracket(), rightsqBracket(), end()));
 
         Parser parser = new Parser(tokens);
-        Assertions.assertThrows(IllegalArgumentException.class, parser::parse);
+        Assertions.assertThrows(ParserException.class, parser::parse);
     }
 
     @Test
@@ -377,14 +377,14 @@ class ParserTest {
     void givenFunctionWithDuplicateVariableName_throwError() {
         List<Token> tokens = List.of(createToken(FUNCTION), identifier("bar"), leftParens(), identifier("val"), createToken(COMMA), identifier("val"), createToken(COMMA), identifier("val"), rightParens(), leftsqBracket(), rightsqBracket(), end());
         Parser parser = new Parser(tokens);
-        Assertions.assertThrows(IllegalArgumentException.class, parser::parse);
+        Assertions.assertThrows(ParserException.class, parser::parse);
     }
 
     @Test
     void givenFunctionWithNoBody_throwError() {
         List<Token> tokens = List.of(createToken(FUNCTION), identifier("bar"), leftParens(), identifier("val"), rightParens(), end());
         Parser parser = new Parser(tokens);
-        Assertions.assertThrows(IllegalArgumentException.class, parser::parse);
+        Assertions.assertThrows(ParserException.class, parser::parse);
     }
 
     @Test
@@ -421,6 +421,34 @@ class ParserTest {
         String expected = "var: bar";
         List<Statement> statements = parser.parse();
         Assertions.assertEquals(expected, toPrint(statements));
+    }
+
+
+    @Test
+    void givenMultipleInValidSyntax_printOutTheCorrectErrors() {
+        String input = """
+                smth a = ;
+                loop ( 2  {
+                	if ( a > 5 ) {
+                		print ( "bigger"  ;
+                
+                	else {
+                		print ( "smaller" ) ;
+                	}
+                }
+                """;
+        Scanner scanner = new Scanner(input);
+        ExceptionHandler exceptionHandler = new ExceptionHandler();
+        Parser parser = new Parser(scanner.scanTokens(), exceptionHandler);
+
+        parser.parse();
+        Assertions.assertTrue(exceptionHandler.hasExceptions());
+        Assertions.assertEquals("""
+                expected expression at line 1, found TERMINATOR(";")
+                expected ) at line 2, found LEFT_CURLYBRAC("{")
+                expected ) at line 4, found TERMINATOR(";")
+                expected } at line 6, found ELSE("else")
+                """, exceptionHandler.printExceptions());
     }
 
 }
