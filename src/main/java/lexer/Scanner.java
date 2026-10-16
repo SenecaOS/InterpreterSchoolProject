@@ -26,7 +26,7 @@ public class Scanner {
 		return tokens;
 
 	}
-	
+
 	private char advance() {
 		current++;
 		return source.charAt(current - 1);
@@ -48,6 +48,9 @@ public class Scanner {
 		char c = advance();
 		switch (c) {
 
+            case ';':
+                addToken(TokenType.TERMINATOR);
+                break;
 		case '(':
 			addToken(TokenType.LEFT_PARENS);
 			break;
@@ -128,7 +131,7 @@ public class Scanner {
 		if (peek() != '"') {
 			throw new IllegalArgumentException("Unterminated string on line " + nline);
 		}
-		
+
 		//consume '"'
 		advance();
 
@@ -137,9 +140,9 @@ public class Scanner {
 	}
 
 	private void lexIdentifier() {
-		
+
 		while (!isAtEnd() && isAnum(peek())) {
-			advance();		
+			advance();
 		}
 /*
 		if(!isAtEnd() && !isBlank(source.charAt(current)) && !isAnum(source.charAt(current))) {
@@ -169,16 +172,16 @@ public class Scanner {
 	}
 
 	public List<Token> getTokens(){
-		
+
 		return List.copyOf(tokens);
-		
+
 	}
 	public void resetScanner(String source) {
 		start = 0;
 		current = 0;
 		nline = 1;
 		this.source = source;
-		tokens.clear();		
+		tokens.clear();
 	}
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
