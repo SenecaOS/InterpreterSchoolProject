@@ -21,6 +21,8 @@ public class Token {
 		return val;
 	}
 
+	public int getLine() {return nline;}
+
 	public Object getLiteral() {
 		return literal;
 	}

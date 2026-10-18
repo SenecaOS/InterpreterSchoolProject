@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import parser.exceptions.ExceptionHandler;
+import parser.exceptions.ParserSyntaxException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,12 +36,12 @@ class ParserTest {
         return new Token(RIGHT_PARENS, ")", null, 0);
     }
 
-    Token leftsqBracket() {
-        return new Token(LEFT_SQBRACKET, "{", null, 0);
+    Token leftCurlybracket() {
+        return new Token(LEFT_CURLYBRAC, "{", null, 0);
     }
 
-    Token rightsqBracket() {
-        return new Token(RIGHT_SQBRACKET, "}", null, 0);
+    Token rightCurlyBracket() {
+        return new Token(RIGHT_CURLYBRAC, "}", null, 0);
     }
 
     Token print() {
@@ -95,7 +97,7 @@ class ParserTest {
     void givenInvalidPrint_ThrowError() {
         List<Token> tokens = List.of(print(), leftParens(), stringToken("Hello world"), terminator(), end());
         Parser parser = new Parser(tokens);
-        assertThrows(ParserException.class, parser::parse);
+        assertThrows(ParserSyntaxException.class, parser::parse);
     }
 
     @ParameterizedTest
@@ -124,7 +126,7 @@ class ParserTest {
         Scanner scanner = new Scanner(input);
         List<Token> tokens = scanner.scanTokens();
         Parser parser = new Parser(tokens);
-        assertThrows(ParserException.class, parser::parse);
+        assertThrows(ParserSyntaxException.class, parser::parse);
     }
 
     @Test
@@ -138,15 +140,15 @@ class ParserTest {
     void givenInValidVariable_ReturnVariableStatement() {
         List<Token> tokens = List.of(createToken(SMTH), valueToken(3.0), createToken(ASSIGNMENT), stringToken("newVar"), terminator(), end());
         Parser parser = new Parser(tokens);
-        assertThrows(ParserException.class, parser::parse);
+        assertThrows(ParserSyntaxException.class, parser::parse);
     }
 
     @Test
     void GivenValidLoop_ReturnLoopStatement() {
-        List<Token> tokens = List.of(createToken(LOOP), leftParens(), valueToken(3.0), rightParens(), leftsqBracket(),
+        List<Token> tokens = List.of(createToken(LOOP), leftParens(), valueToken(3.0), rightParens(), leftCurlybracket(),
                 createToken(SMTH), createToken(IDENTIFIER, "newVar"), createToken(ASSIGNMENT), valueToken(5.0), terminator(),
                 print(), leftParens(), stringToken("Hello world"), rightParens(), terminator(),
-                rightsqBracket(), end());
+                rightCurlyBracket(), end());
 
         Parser parser = new Parser(tokens);
         String expected = """
@@ -161,27 +163,27 @@ class ParserTest {
 
     @Test
     void givenOverMaxSyntaxBlockDepth_throwError() {
-        List<Token> loopStart = List.of(createToken(LOOP), leftParens(), valueToken(3.0), rightParens(), leftsqBracket());
+        List<Token> loopStart = List.of(createToken(LOOP), leftParens(), valueToken(3.0), rightParens(), leftCurlybracket());
         List<Token> tokens = new ArrayList<>();
         for (int i = 0; i < 30; i++) {
             tokens.addAll(loopStart);
         }
 
         for (int i = 0; i < 30; i++) {
-            tokens.add(rightsqBracket());
+            tokens.add(rightCurlyBracket());
         }
 
         tokens.add(end());
         Parser parser = new Parser(tokens);
-        assertThrows(ParserException.class, parser::parse);
+        assertThrows(IllegalArgumentException.class, parser::parse);
     }
 
     @Test
     void givenValidIfStatement_ReturnIfStatement() {
         List<Token> tokens = List.of(
-                createToken(IF), leftParens(), createToken(TRUE), rightParens(), leftsqBracket(),
+                createToken(IF), leftParens(), createToken(TRUE), rightParens(), leftCurlybracket(),
                 print(), leftParens(), stringToken("Hello world"), rightParens(), terminator(),
-                rightsqBracket()
+                rightCurlyBracket()
                 , end()
         );
 
@@ -199,11 +201,11 @@ class ParserTest {
     @Test
     void givenValidIfAndElseStatement_ReturnIfStatementWithElse() {
         List<Token> tokens = List.of(
-                createToken(IF), leftParens(), createToken(TRUE), rightParens(), leftsqBracket(),
+                createToken(IF), leftParens(), createToken(TRUE), rightParens(), leftCurlybracket(),
                 print(), leftParens(), stringToken("Hello world"), rightParens(), terminator(),
-                rightsqBracket(), createToken(ELSE), leftsqBracket(),
+                rightCurlyBracket(), createToken(ELSE), leftCurlybracket(),
                 print(), leftParens(), stringToken("Hello world"), rightParens(), terminator(),
-                rightsqBracket()
+                rightCurlyBracket()
                 , end()
         );
 
@@ -223,13 +225,13 @@ class ParserTest {
     @Test
     void givenValidElseIfStatement_ReturnIfStatementWithElseIf() {
         List<Token> tokens = List.of(
-                createToken(IF), leftParens(), createToken(TRUE), rightParens(), leftsqBracket(),
+                createToken(IF), leftParens(), createToken(TRUE), rightParens(), leftCurlybracket(),
                 print(), leftParens(), stringToken("Hello world"), rightParens(), terminator(),
-                rightsqBracket(), createToken(ELSE), createToken(IF), leftParens(), createToken(TRUE), rightParens(), leftsqBracket(),
+                rightCurlyBracket(), createToken(ELSE), createToken(IF), leftParens(), createToken(TRUE), rightParens(), leftCurlybracket(),
                 print(), leftParens(), stringToken("Hello world"), rightParens(), terminator(),
-                rightsqBracket(), createToken(ELSE), leftsqBracket(),
+                rightCurlyBracket(), createToken(ELSE), leftCurlybracket(),
                 print(), leftParens(), stringToken("Hello world"), rightParens(), terminator(),
-                rightsqBracket()
+                rightCurlyBracket()
                 , end()
         );
 
@@ -252,26 +254,26 @@ class ParserTest {
 
     @Test
     void givenElseInsteadOfIf_throwError() {
-        List<Token> tokens = List.of(createToken(ELSE), leftParens(), createToken(TRUE), rightParens(), leftsqBracket(),
+        List<Token> tokens = List.of(createToken(ELSE), leftParens(), createToken(TRUE), rightParens(), leftCurlybracket(),
                 print(), leftParens(), stringToken("Hello world"), rightParens(), terminator(),
-                rightsqBracket()
+                rightCurlyBracket()
         );
 
         Parser parser = new Parser(tokens);
-        Assertions.assertThrows(ParserException.class, parser::parse);
+        Assertions.assertThrows(ParserSyntaxException.class, parser::parse);
     }
 
     @Test
     void givenIfWithNoCondition_throwError() {
         List<Token> tokens = List.of(
-                createToken(IF), leftParens(), rightParens(), leftsqBracket(),
+                createToken(IF), leftParens(), rightParens(), leftCurlybracket(),
                 print(), leftParens(), stringToken("Hello world"), rightParens(), terminator(),
-                rightsqBracket()
+                rightCurlyBracket()
                 , end()
         );
 
         Parser parser = new Parser(tokens);
-        Assertions.assertThrows(ParserException.class, parser::parse);
+        Assertions.assertThrows(ParserSyntaxException.class, parser::parse);
     }
 
     @Test
@@ -285,10 +287,10 @@ class ParserTest {
     @Test
     void givenReturnWithNoExpression_returnReturnStatementWithNull() {
         List<Token> tokens = List.of(
-                createToken(IF), leftParens(), createToken(TRUE), rightParens(), leftsqBracket(),
+                createToken(IF), leftParens(), createToken(TRUE), rightParens(), leftCurlybracket(),
                 print(), leftParens(), stringToken("Hello world"), rightParens(), terminator(),
                 createToken(RETURN), terminator(),
-                rightsqBracket()
+                rightCurlyBracket()
                 , end());
         Parser parser = new Parser(tokens);
         String expected = """
@@ -303,7 +305,7 @@ class ParserTest {
 
     @Test
     void givenValidEmptyFunction_returnFunction() {
-        List<Token> tokens = List.of(createToken(FUNCTION), identifier("foo"), leftParens(), rightParens(), leftsqBracket(), rightsqBracket(), end());
+        List<Token> tokens = List.of(createToken(FUNCTION), identifier("foo"), leftParens(), rightParens(), leftCurlybracket(), rightCurlyBracket(), end());
         Parser parser = new Parser(tokens);
         String expected = """
                 function foo([])
@@ -318,7 +320,7 @@ class ParserTest {
 
     @Test
     void givenValidFunctionWithArity1_returnFunctionWithArity1() {
-        List<Token> tokens = List.of(createToken(FUNCTION), identifier("bar"), leftParens(), identifier("val"), rightParens(), leftsqBracket(), rightsqBracket(), end());
+        List<Token> tokens = List.of(createToken(FUNCTION), identifier("bar"), leftParens(), identifier("val"), rightParens(), leftCurlybracket(), rightCurlyBracket(), end());
         Parser parser = new Parser(tokens);
         String expected = """
                 function bar([val])
@@ -332,7 +334,7 @@ class ParserTest {
 
     @Test
     void givenValidFunctionWithArity3_returnFunctionWithArity3() {
-        List<Token> tokens = List.of(createToken(FUNCTION), identifier("bar"), leftParens(), identifier("val"), createToken(COMMA), identifier("val1"), createToken(COMMA), identifier("val2"), rightParens(), leftsqBracket(), rightsqBracket(), end());
+        List<Token> tokens = List.of(createToken(FUNCTION), identifier("bar"), leftParens(), identifier("val"), createToken(COMMA), identifier("val1"), createToken(COMMA), identifier("val2"), rightParens(), leftCurlybracket(), rightCurlyBracket(), end());
         Parser parser = new Parser(tokens);
         String expected = """
                 function bar([val, val1, val2])
@@ -346,17 +348,17 @@ class ParserTest {
 
     @Test
     void givenFunctionWithNoName_throwError() {
-        List<Token> tokens = List.of(createToken(FUNCTION), leftParens(), identifier("val"), rightParens(), leftsqBracket(), rightsqBracket(), end());
+        List<Token> tokens = List.of(createToken(FUNCTION), leftParens(), identifier("val"), rightParens(), leftCurlybracket(), rightCurlyBracket(), end());
         Parser parser = new Parser(tokens);
-        Assertions.assertThrows(ParserException.class, parser::parse);
+        Assertions.assertThrows(ParserSyntaxException.class, parser::parse);
     }
 
     @Test
     void givenValidFunctionWithCommaBefore_throwError() {
-        List<Token> tokens = new ArrayList<>(List.of(createToken(FUNCTION), identifier("bar"), leftParens(), createToken(COMMA), identifier("val"), rightParens(), leftsqBracket(), rightsqBracket(), end()));
+        List<Token> tokens = new ArrayList<>(List.of(createToken(FUNCTION), identifier("bar"), leftParens(), createToken(COMMA), identifier("val"), rightParens(), leftCurlybracket(), rightCurlyBracket(), end()));
 
         Parser parser = new Parser(tokens);
-        Assertions.assertThrows(ParserException.class, parser::parse);
+        Assertions.assertThrows(ParserSyntaxException.class, parser::parse);
     }
 
     @Test
@@ -368,23 +370,23 @@ class ParserTest {
             tokens.addAll(List.of(createToken(COMMA), identifier("val" + i)));
         }
 
-        tokens.addAll(List.of(rightParens(), leftsqBracket(), rightsqBracket(), end()));
+        tokens.addAll(List.of(rightParens(), leftCurlybracket(), rightCurlyBracket(), end()));
         Parser parser = new Parser(tokens);
         Assertions.assertThrows(IllegalArgumentException.class, parser::parse);
     }
 
     @Test
     void givenFunctionWithDuplicateVariableName_throwError() {
-        List<Token> tokens = List.of(createToken(FUNCTION), identifier("bar"), leftParens(), identifier("val"), createToken(COMMA), identifier("val"), createToken(COMMA), identifier("val"), rightParens(), leftsqBracket(), rightsqBracket(), end());
+        List<Token> tokens = List.of(createToken(FUNCTION), identifier("bar"), leftParens(), identifier("val"), createToken(COMMA), identifier("val"), createToken(COMMA), identifier("val"), rightParens(), leftCurlybracket(), rightCurlyBracket(), end());
         Parser parser = new Parser(tokens);
-        Assertions.assertThrows(ParserException.class, parser::parse);
+        Assertions.assertThrows(IllegalArgumentException.class, parser::parse);
     }
 
     @Test
     void givenFunctionWithNoBody_throwError() {
         List<Token> tokens = List.of(createToken(FUNCTION), identifier("bar"), leftParens(), identifier("val"), rightParens(), end());
         Parser parser = new Parser(tokens);
-        Assertions.assertThrows(ParserException.class, parser::parse);
+        Assertions.assertThrows(ParserSyntaxException.class, parser::parse);
     }
 
     @Test

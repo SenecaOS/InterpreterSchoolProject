@@ -2,6 +2,10 @@ package parser;
 
 import lexer.Token;
 import lexer.TokenType;
+import parser.exceptions.ExceptionHandler;
+import parser.exceptions.ParserElseException;
+import parser.exceptions.ParserException;
+import parser.exceptions.ParserSyntaxException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +25,7 @@ public class Parser {
     private int current = 0;
     private final List<Token> tokens;
 
-    private ExceptionHandler exceptionHandler;
+    private final ExceptionHandler exceptionHandler;
 
     public Parser(List<Token> tokens, ExceptionHandler exceptionHandler) {
         this.tokens = tokens;
@@ -34,8 +38,13 @@ public class Parser {
 
     public List<Statement> parse() {
         List<Statement> statements = new ArrayList<>();
+
         while (!isAtEnd()) {
-            statements.add(getNext());
+            try {
+                statements.add(getNext());
+            } catch (ParserException error) {
+                handleError(error);
+            }
         }
 
         return statements;
@@ -43,27 +52,27 @@ public class Parser {
 
     private Statement getNext() {
 
-        if (match(FUNCTION)) {
+        if (matchAndIncrement(FUNCTION)) {
             return functionStatement();
         }
 
-        if (match(SMTH)) {
+        if (matchAndIncrement(SMTH)) {
             return variableStatement();
         }
 
-        if (match(RETURN)) {
+        if (matchAndIncrement(RETURN)) {
             return returnStatement();
         }
 
-        if (match(IF)) {
+        if (matchAndIncrement(IF)) {
             return ifStatement();
         }
 
-        if  (match(LOOP)) {
+        if (matchAndIncrement(LOOP)) {
             return loopStatement();
         }
 
-        if (match(PRINT)) {
+        if (matchAndIncrement(PRINT)) {
             return printStatement();
         }
 
@@ -71,34 +80,35 @@ public class Parser {
     }
 
     private Statement.Function functionStatement() {
-        String name = consume(IDENTIFIER, "Expected identifier").getVal();
-        consume(LEFT_PARENS, "Expect '(' after identifier.");
+        String name = consume(IDENTIFIER, "identifier").getVal();
+        consume(LEFT_PARENS, "'(' after identifier.");
 
         List<String> params = new ArrayList<>();
 
-        if (match(IDENTIFIER)) {
+        if (matchAndIncrement(IDENTIFIER)) {
 
             params.add(prev().getVal());
 
-            while(match(COMMA)) {
-                String paramName =  consume(IDENTIFIER, "Expected identifier").getVal();
+            while (matchAndIncrement(COMMA)) {
+                String paramName = consume(IDENTIFIER, "identifier").getVal();
                 if (params.contains(paramName)) throw new IllegalArgumentException("Duplicate parameter: " + paramName);
                 params.add(paramName);
 
-                if (params.size() > MAX_ARITY) throw new IllegalArgumentException("Too many parameters for function: " + name);
+                if (params.size() > MAX_ARITY)
+                    throw new IllegalArgumentException("Too many parameters for function: " + name);
             }
         }
-        
-        consume(RIGHT_PARENS, "Expect ')' after expression.");
+
+        consume(RIGHT_PARENS, "')' after expression.");
         Statement.Block block = blockStatement();
         return new Statement.Function(name, block, params);
     }
 
     private Statement.Variable variableStatement() {
-        Token token = consume(IDENTIFIER, "Expected identifier");
-        consume(ASSIGNMENT, "Expected '=' after variable name.");
+        Token token = consume(IDENTIFIER, "identifier");
+        consume(ASSIGNMENT, "'=' after variable name.");
         Expr expression = expression();
-        consume(TERMINATOR, "Expected ';' after expression.");
+        consume(TERMINATOR, "';' after expression.");
         return new Statement.Variable(token.getVal(), expression);
     }
 
@@ -106,29 +116,30 @@ public class Parser {
         Expr expression = null;
         try {
             expression = expression();
-        } catch (IllegalArgumentException ignored) {}
-        consume(TERMINATOR, "Expected ';' after expression.");
+        } catch (ParserSyntaxException ignored) {
+        }
+        consume(TERMINATOR, "';' after expression.");
         return new Statement.Return(expression);
     }
 
     private Statement.Loop loopStatement() {
-        consume(LEFT_PARENS, "Expect '(' after loop.");
+        consume(LEFT_PARENS, "'(' after loop.");
         Expr expression = expression();
-        consume(RIGHT_PARENS, "Expect ')' after expression.");
+        consume(RIGHT_PARENS, "')' after expression.");
         Statement.Block block = blockStatement();
-        return  new Statement.Loop(block, expression);
+        return new Statement.Loop(block, expression);
 
     }
 
     private Statement.If ifStatement() {
-        consume(LEFT_PARENS, "Expect '(' after loop.");
+        consume(LEFT_PARENS, "'(' after loop.");
         Expr expression = expression();
-        consume(RIGHT_PARENS, "Expect ')' after expression.");
+        consume(RIGHT_PARENS, "')' after expression.");
         Statement.Block block = blockStatement();
         Statement elseStatement = null;
 
-        if (match(ELSE)) {
-            if (match(IF)) {
+        if (matchAndIncrement(ELSE)) {
+            if (matchAndIncrement(IF)) {
                 elseStatement = ifStatement();
             } else {
                 elseStatement = blockStatement();
@@ -142,27 +153,31 @@ public class Parser {
     private Statement.Block blockStatement() {
         depth++;
         if (depth >= MAX_DEPTH) throw new IllegalArgumentException("Reached max depth, consider refactoring your code");
-        consume(LEFT_SQBRACKET, "Expected '{' at the start of block statement");
+        consume(LEFT_CURLYBRAC, "'{' at the start of block statement");
         List<Statement> statements = new ArrayList<>();
-        while(!check(RIGHT_SQBRACKET)) {
-            statements.add(getNext());
+        while (!check(RIGHT_CURLYBRAC) && !isAtEnd()) {
+            try {
+                statements.add(getNext());
+            } catch (ParserException error) {
+                handleError(error);
+            }
         }
-        consume(RIGHT_SQBRACKET, "Expected '}'at the end of block statement");
+        consume(RIGHT_CURLYBRAC, "'}' at the end of block statement");
         depth--;
         return new Statement.Block(statements);
     }
 
     private Statement.Print printStatement() {
-        consume(LEFT_PARENS, "Expect '(' after print.");
+        consume(LEFT_PARENS, "'(' after print.");
         Expr expression = expression();
-        consume(RIGHT_PARENS, "Expect ')' after expression.");
-        consume(TERMINATOR, "Expected ';' after ).");
+        consume(RIGHT_PARENS, "')' after expression.");
+        consume(TERMINATOR, "';' after ).");
         return new Statement.Print(expression);
     }
 
     private Statement.Expression expressionStatement() {
         Expr expression = expression();
-        consume(TERMINATOR, "Expected ';' after expression.");
+        consume(TERMINATOR, "';' after expression.");
         return new Statement.Expression(expression);
     }
 
@@ -173,7 +188,7 @@ public class Parser {
     private Expr equality() {
         Expr left = comparison();
 
-        while(match(NOT_EQUALS, EQUALS)) {
+        while (matchAndIncrement(NOT_EQUALS, EQUALS)) {
             Token operator = prev();
             Expr right = comparison();
             left = new Expr.Binary(left, operator, right);
@@ -185,7 +200,7 @@ public class Parser {
     private Expr comparison() {
         Expr left = term();
 
-        while(match(GREATER, LESSER, GREATER_EQUALS, LESS_EQUALS)) {
+        while (matchAndIncrement(GREATER, LESSER, GREATER_EQUALS, LESS_EQUALS)) {
             Token operator = prev();
             Expr right = term();
             left = new Expr.Binary(left, operator, right);
@@ -197,7 +212,7 @@ public class Parser {
     private Expr term() {
         Expr left = factor();
 
-        while(match(PLUS, MINUS)) {
+        while (matchAndIncrement(PLUS, MINUS)) {
             Token operator = prev();
             Expr right = factor();
             left = new Expr.Binary(left, operator, right);
@@ -209,7 +224,7 @@ public class Parser {
     private Expr factor() {
         Expr left = unary();
 
-        while(match(STAR, SLASH)) {
+        while (matchAndIncrement(STAR, SLASH)) {
             Token operator = prev();
             Expr right = unary();
             left = new Expr.Binary(left, operator, right);
@@ -219,7 +234,7 @@ public class Parser {
     }
 
     private Expr unary() {
-        if (match(NOT, MINUS)) {
+        if (matchAndIncrement(NOT, MINUS)) {
             Token operator = prev();
             Expr expr = unary();
             return new Expr.Unary(operator, expr);
@@ -229,27 +244,26 @@ public class Parser {
     }
 
     private Expr primary() {
-        if (match(VALUE, STRING)) {
+        if (matchAndIncrement(VALUE, STRING)) {
             Token token = prev();
             return new Expr.Literal(token.getLiteral());
         }
 
-        if (match(TRUE)) return TRUE_EXPR;
-        if (match(FALSE)) return FALSE_EXPR;
-        if (match(NOTH)) return NULL_EXPR;
+        if (matchAndIncrement(TRUE)) return TRUE_EXPR;
+        if (matchAndIncrement(FALSE)) return FALSE_EXPR;
+        if (matchAndIncrement(NOTH)) return NULL_EXPR;
 
-        if (match(LEFT_PARENS)) {
+        if (matchAndIncrement(LEFT_PARENS)) {
             Expr expression = expression();
-            consume(RIGHT_PARENS, "Expect ')' after expression.");
+            consume(RIGHT_PARENS, "')' after expression.");
             return new Expr.Grouping(expression);
         }
 
-        if (match(IDENTIFIER)) {
+        if (matchAndIncrement(IDENTIFIER)) {
             return call();
         }
 
-        Token latest = peek();
-        throw new IllegalArgumentException("Cant parse expression at: " + latest);
+        throw new ParserSyntaxException(peek(), "expression");
     }
 
     private Expr call() {
@@ -260,28 +274,34 @@ public class Parser {
         }
 
         List<Expr> arguments = new ArrayList<>();
-        consume(LEFT_PARENS, "Expect '(' after identifier.");
+        consume(LEFT_PARENS, "'(' after identifier.");
 
         if (!check(RIGHT_PARENS)) {
 
             do {
                 arguments.add(expression());
-            } while (match(COMMA));
+            } while (matchAndIncrement(COMMA));
         }
 
-        consume(RIGHT_PARENS, "Expect ')' after expression.");
+        consume(RIGHT_PARENS, "')' after expression.");
 
         return new Expr.Call(name, arguments);
     }
 
-    private boolean match(TokenType... types) {
-        for (TokenType type : types) {
-            if (check(type)) {
-                current++;
-                return true;
-            }
+    private boolean matchAndIncrement(TokenType... types) {
+        if (match(types)) {
+            current++;
+            return true;
         }
+        return false;
+    }
 
+    private boolean match(TokenType... types) {
+        if (isAtEnd()) return false;
+        TokenType needs = peek().getTokenType();
+        for (TokenType type : types) {
+            if (type == needs) return true;
+        }
         return false;
     }
 
@@ -302,12 +322,30 @@ public class Parser {
         return tokens.get(current - 1);
     }
 
-    private Token consume(TokenType type, String errorMessage) {
-        if (check(type)) {
-            current++;
+    private Token consume(TokenType type, String expected) {
+        if (matchAndIncrement(type)) {
             return prev();
         }
 
-        throw new IllegalArgumentException(errorMessage + ", but got: " + peek());
+        throw new ParserSyntaxException(peek(), expected);
+    }
+
+    private void findNextStatement() {
+        while (!isAtEnd() && !match(FUNCTION, SMTH, RETURN, IF, LOOP, PRINT)) {
+            current++;
+
+            if (matchAndIncrement(ELSE)) {
+                exceptionHandler.addException(new ParserElseException(prev()));
+            }
+        }
+    }
+
+    private void handleError(ParserException error) {
+        if (exceptionHandler != null) {
+            exceptionHandler.addException(error);
+            findNextStatement();
+        } else {
+            throw error;
+        }
     }
 }
