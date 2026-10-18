@@ -6,6 +6,9 @@ import java.util.List;
 
 import lexer.Scanner;
 import lexer.Token;
+import parser.Parser;
+import parser.Statement;
+import parser.exceptions.ExceptionHandler;
 
 public class Main {
 
@@ -31,7 +34,13 @@ public class Main {
 		for(Token token : tokens) {
 			System.out.println(token);
 		}
-		
+		ExceptionHandler  exceptionHandler = new ExceptionHandler();
+		Parser parser = new Parser(tokens, exceptionHandler);
+		List<Statement> statements = parser.parse();
+		if (exceptionHandler.hasExceptions()) {
+			System.out.println(exceptionHandler);
+			return;
+		}
 	}
 
 	public static void main(String [] args) throws IOException {
@@ -45,6 +54,7 @@ public class Main {
 		}
 		
 		//runFile("src/main/java/test.smth");
+		//runFile("src/main/java/large-file.smth");
 	}
 	
 	
