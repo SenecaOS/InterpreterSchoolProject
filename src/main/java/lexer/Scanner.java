@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class Scanner {
-	private String source;
+	private final String source;
 	private final List<Token> tokens = new ArrayList<>();
 	private int start = 0;
 	private int current = 0;
@@ -27,6 +27,7 @@ public class Scanner {
         reservedWords.put("noth", TokenType.NOTH);
         reservedWords.put("else", TokenType.ELSE);
         reservedWords.put("if", TokenType.IF);
+		reservedWords.put("function", TokenType.FUNCTION);
     }
 	
 
@@ -73,8 +74,11 @@ public class Scanner {
 		case '\\':
 			// we ignore white space
 			break;
+			case ',':
+				addToken(TokenType.COMMA);
+				break;
 		case ';':
-			addToken(TokenType.TERMINATOR);
+			addToken(TokenType.SEMICOLON);
 			break;
 		case '(':
 			addToken(TokenType.LEFT_PARENS);
@@ -321,12 +325,12 @@ public class Scanner {
         }
         addToken(TokenType.IDENTIFIER, source.substring(start + 1, current - 1));
     }
-
+/* FOR ALTERNATIVE TESTING METHOD WITHOUT HASHMAP
 	private boolean isAnum(int c) {
 		return isNum(c) || isAlpha(c);
 
 	}
-
+*/
 	private boolean isNum(int c) {
 		return c >= '0' && c <= '9';
 
@@ -336,11 +340,11 @@ public class Scanner {
 		return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c == '_';
 
 	}
-
+/* METHOD FOR ALTERNATIVE WITHOUT HASHMAP
 	private boolean isBlank(int c) {
 		return c == ' ' || c == '\t' || c == '\n';
 	}
-
+*/
 	public List<Token> getTokens() {
 
 		return List.copyOf(tokens);

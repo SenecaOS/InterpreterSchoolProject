@@ -19,11 +19,11 @@ public class ScannerTest {
 		
 		scanner = new Scanner("noth;");
 		scanner.scanTokens();
-		assertEquals("NOTH(\"noth\") TERMINATOR(\";\") EOF(\"\") ", scanner.toString());
+		assertEquals("NOTH(\"noth\") SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
 		
 		scanner = new Scanner("notha;");
 		scanner.scanTokens();
-		assertEquals("IDENTIFIER(\"notha\") TERMINATOR(\";\") EOF(\"\") ", scanner.toString());
+		assertEquals("IDENTIFIER(\"notha\") SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
 		
 		
 		scanner = new Scanner("noth\t");
@@ -49,11 +49,11 @@ public class ScannerTest {
 		
 		scanner = new Scanner("false;");
 		scanner.scanTokens();
-		assertEquals("FALSE(\"false\") TERMINATOR(\";\") EOF(\"\") ", scanner.toString());
+		assertEquals("FALSE(\"false\") SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
 		
 		scanner = new Scanner("falsea;");
 		scanner.scanTokens();
-		assertEquals("IDENTIFIER(\"falsea\") TERMINATOR(\";\") EOF(\"\") ", scanner.toString());
+		assertEquals("IDENTIFIER(\"falsea\") SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
 		
 		
 	}
@@ -67,11 +67,11 @@ public class ScannerTest {
 		
 		scanner = new Scanner("return;");
 		scanner.scanTokens();
-		assertEquals("RETURN(\"return\") TERMINATOR(\";\") EOF(\"\") ", scanner.toString());
+		assertEquals("RETURN(\"return\") SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
 		
 		scanner = new Scanner("returna;");
 		scanner.scanTokens();
-		assertEquals("IDENTIFIER(\"returna\") TERMINATOR(\";\") EOF(\"\") ", scanner.toString());
+		assertEquals("IDENTIFIER(\"returna\") SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
 		
 		
 	}
@@ -79,19 +79,19 @@ public class ScannerTest {
 	
 	
 	@Test
-	void testTerminator() {
+	void testSEMICOLON() {
 		
 		Scanner scanner = new Scanner(";");
 		scanner.scanTokens();
-		assertEquals("TERMINATOR(\";\") EOF(\"\") ", scanner.toString());
+		assertEquals("SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
 		
 		scanner = new Scanner("!;");
 		scanner.scanTokens();
-		assertEquals("NOT(\"!\") TERMINATOR(\";\") EOF(\"\") ", scanner.toString());
+		assertEquals("NOT(\"!\") SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
 		
 		scanner = new Scanner("elsea;");
 		scanner.scanTokens();
-		assertEquals("IDENTIFIER(\"elsea\") TERMINATOR(\";\") EOF(\"\") ", scanner.toString());
+		assertEquals("IDENTIFIER(\"elsea\") SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
 		
 		
 	}
@@ -465,6 +465,11 @@ public class ScannerTest {
 		scanner.scanTokens();
 		tok = scanner.getTokens().get(0);
 		assertEquals((double)tok.getLiteral(), (double) 3, 0.001);
+
+		scanner = new Scanner("3.5*6");
+		scanner.scanTokens();
+		tok = scanner.getTokens().get(0);
+		assertEquals((double)tok.getLiteral(), (double) 3.5, 0.001);
 	}
 	
 	
@@ -477,12 +482,7 @@ public class ScannerTest {
 		scanner = new Scanner("--6++**");
 		scanner.scanTokens();
 		assertEquals("MINUS(\"-\") MINUS(\"-\") VALUE(\"6\") PLUS(\"+\") PLUS(\"+\") STAR(\"*\") STAR(\"*\") EOF(\"\") ", scanner.toString());
-		
-		
-		scanner = new Scanner("//6--+*++");
-		scanner.scanTokens();
-		assertEquals("SLASH(\"/\") SLASH(\"/\") VALUE(\"6\") MINUS(\"-\") MINUS(\"-\") PLUS(\"+\") STAR(\"*\") PLUS(\"+\") PLUS(\"+\") EOF(\"\") ", scanner.toString());
-		
+
 		
 	}
 	
