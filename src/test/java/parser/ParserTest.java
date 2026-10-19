@@ -105,7 +105,8 @@ class ParserTest {
             "2 + 3 - 4 ;, ((2.0 + 3.0) - 4.0)",
             "3 + 5 * 6 ;, (3.0 + (5.0 * 6.0))",
             "2 / ( - 3 + 2 ) ;, (2.0 / (((-3.0) + 2.0)))",
-            "3 + \"string\";, (3.0 + string)"
+            "3 + \"string\";, (3.0 + string)",
+            "2 != 3 ;, (2.0 != 3.0)",
     })
     void givenValidExpression_ReturnExpressionStatement(String input, String expected) {
         Scanner scanner = new Scanner(input);
