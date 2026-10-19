@@ -76,6 +76,10 @@ public class Parser {
             return printStatement();
         }
 
+        if (matchAndIncrement(INTERRUPT)) {
+            return InterruptStatement();
+        }
+
         return expressionStatement();
     }
 
@@ -175,6 +179,11 @@ public class Parser {
         return new Statement.Print(expression);
     }
 
+    private Statement.Interrupt InterruptStatement() {
+        consume(TERMINATOR, "terminator after interrupt");
+        return new Statement.Interrupt();
+    }
+
     private Statement.Expression expressionStatement() {
         Expr expression = expression();
         consume(TERMINATOR, "';' after expression.");
@@ -182,7 +191,19 @@ public class Parser {
     }
 
     private Expr expression() {
-        return equality();
+        return logical();
+    }
+
+    private Expr logical() {
+        Expr left = equality();
+
+        while (matchAndIncrement(AND, OR)) {
+            Token operator = prev();
+            Expr right = equality();
+            left = new Expr.Binary(left, operator, right);
+        }
+
+        return left;
     }
 
     private Expr equality() {
