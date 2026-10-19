@@ -107,6 +107,7 @@ class ParserTest {
             "2 / ( - 3 + 2 ) ;, (2.0 / (((-3.0) + 2.0)))",
             "3 + \"string\";, (3.0 + string)",
             "2 != 3 ;, (2.0 != 3.0)",
+            "true & 5 == a + b | 2 ;, true & (5.0 == a + b) | 2.0"
     })
     void givenValidExpression_ReturnExpressionStatement(String input, String expected) {
         Scanner scanner = new Scanner(input);
@@ -452,6 +453,15 @@ class ParserTest {
                 expected ) at line 4, found TERMINATOR(";")
                 expected } at line 6, found ELSE("else")
                 """, exceptionHandler.printExceptions());
+    }
+
+    @Test
+    void givenValidInterrupt_returnInteruptStatement() {
+        List<Token> tokens = List.of(createToken(INTERRUPT), terminator(), end());
+        Parser parser = new Parser(tokens);
+        String expected = "interrupt";
+        List<Statement> statements = parser.parse();
+        Assertions.assertEquals(expected, toPrint(statements));
     }
 
 }

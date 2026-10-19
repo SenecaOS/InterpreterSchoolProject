@@ -105,4 +105,9 @@ public class AstPrinter implements Expr.Visitor<String>, Statement.Visitor<Strin
     public String visitFunction(Statement.Function function) {
         return "function " + function.name + "(" + function.params + ")\n" + function.block.accept(this);
     }
+
+    @Override
+    public String visitInterrupt(Statement.Interrupt interrupt) {
+        return "interrupt";
+    }
 }
