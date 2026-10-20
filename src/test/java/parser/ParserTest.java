@@ -448,10 +448,11 @@ class ParserTest {
         parser.parse();
         Assertions.assertTrue(exceptionHandler.hasExceptions());
         Assertions.assertEquals("""
-                expected expression at line 1, found TERMINATOR(";")
-                expected ) at line 2, found LEFT_CURLYBRAC("{")
-                expected ) at line 4, found TERMINATOR(";")
-                expected } at line 6, found ELSE("else")
+                expected expression at line 1, found ;
+                expected ) at line 2, found {
+                expected ) at line 4, found ;
+                Found else without if at line 6
+                reached end of file while parsing
                 """, exceptionHandler.printExceptions());
     }
 
