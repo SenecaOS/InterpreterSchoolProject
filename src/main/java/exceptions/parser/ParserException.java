@@ -1,4 +1,4 @@
-package parser.exceptions;
+package exceptions.parser;
 
 import lexer.Token;
 import lexer.TokenType;

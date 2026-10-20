@@ -2,10 +2,10 @@ package parser;
 
 import lexer.Token;
 import lexer.TokenType;
-import parser.exceptions.ExceptionHandler;
-import parser.exceptions.ParserElseException;
-import parser.exceptions.ParserException;
-import parser.exceptions.ParserSyntaxException;
+import exceptions.parser.ParserExceptionHandler;
+import exceptions.parser.ParserElseException;
+import exceptions.parser.ParserException;
+import exceptions.parser.ParserSyntaxException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,11 +25,11 @@ public class Parser {
     private int current = 0;
     private final List<Token> tokens;
 
-    private final ExceptionHandler exceptionHandler;
+    private final ParserExceptionHandler parserExceptionHandler;
 
-    public Parser(List<Token> tokens, ExceptionHandler exceptionHandler) {
+    public Parser(List<Token> tokens, ParserExceptionHandler parserExceptionHandler) {
         this.tokens = tokens;
-        this.exceptionHandler = exceptionHandler;
+        this.parserExceptionHandler = parserExceptionHandler;
     }
 
     public Parser(List<Token> tokens) {
@@ -356,14 +356,14 @@ public class Parser {
             current++;
 
             if (matchAndIncrement(ELSE)) {
-                exceptionHandler.addException(new ParserElseException(prev()));
+                parserExceptionHandler.addException(new ParserElseException(prev()));
             }
         }
     }
 
     private void handleError(ParserException error) {
-        if (exceptionHandler != null) {
-            exceptionHandler.addException(error);
+        if (parserExceptionHandler != null) {
+            parserExceptionHandler.addException(error);
             findNextStatement();
         } else {
             throw error;

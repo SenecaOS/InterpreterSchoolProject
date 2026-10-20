@@ -8,7 +8,7 @@ import lexer.Scanner;
 import lexer.Token;
 import parser.Parser;
 import parser.Statement;
-import parser.exceptions.ExceptionHandler;
+import exceptions.parser.ParserExceptionHandler;
 
 public class Main {
 
@@ -34,11 +34,11 @@ public class Main {
 		for(Token token : tokens) {
 			System.out.println(token);
 		}
-		ExceptionHandler  exceptionHandler = new ExceptionHandler();
-		Parser parser = new Parser(tokens, exceptionHandler);
+		ParserExceptionHandler parserExceptionHandler = new ParserExceptionHandler();
+		Parser parser = new Parser(tokens, parserExceptionHandler);
 		List<Statement> statements = parser.parse();
-		if (exceptionHandler.hasExceptions()) {
-			System.out.println(exceptionHandler);
+		if (parserExceptionHandler.hasExceptions()) {
+			System.out.println(parserExceptionHandler);
 			return;
 		}
 	}

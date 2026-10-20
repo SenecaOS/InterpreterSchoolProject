@@ -1,16 +1,16 @@
-package parser.exceptions;
+package exceptions;
 
 import java.util.ArrayList;
 
-public class ExceptionHandler {
+public abstract class ExceptionHandler<T extends Exception> {
 
-    private final ArrayList<ParserException> exceptions;
+    private final ArrayList<T> exceptions;
 
     public ExceptionHandler() {
         exceptions = new ArrayList<>();
     }
 
-    public void addException(ParserException e) {
+    public void addException(T e) {
         exceptions.add(e);
     }
 
@@ -20,14 +20,12 @@ public class ExceptionHandler {
 
     public String printExceptions() {
         StringBuilder sb = new StringBuilder();
-        for (Exception e : exceptions) {
-            sb.append(e.toString()).append("\n");
+        for (T exception : exceptions) {
+            sb.append(printException(exception)).append("\n");
         }
         return sb.toString();
     }
 
-    @Override
-    public String toString() {
-        return printExceptions();
-    }
+    protected abstract String printException(T exception);
+
 }

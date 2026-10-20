@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import parser.exceptions.ExceptionHandler;
-import parser.exceptions.ParserSyntaxException;
+import exceptions.parser.ParserExceptionHandler;
+import exceptions.parser.ParserSyntaxException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -442,18 +442,18 @@ class ParserTest {
                 }
                 """;
         Scanner scanner = new Scanner(input);
-        ExceptionHandler exceptionHandler = new ExceptionHandler();
-        Parser parser = new Parser(scanner.scanTokens(), exceptionHandler);
+        ParserExceptionHandler parserExceptionHandler = new ParserExceptionHandler();
+        Parser parser = new Parser(scanner.scanTokens(), parserExceptionHandler);
 
         parser.parse();
-        Assertions.assertTrue(exceptionHandler.hasExceptions());
+        Assertions.assertTrue(parserExceptionHandler.hasExceptions());
         Assertions.assertEquals("""
                 Expected 'expression' at line 1, but found ';'.
                 Expected ')' at line 2, but found '{'.
                 Expected ')' at line 4, but found ';'.
                 Found else without if at line 6.
                 Reached end of file while parsing.
-                """, exceptionHandler.printExceptions());
+                """, parserExceptionHandler.printExceptions());
     }
 
     @Test
