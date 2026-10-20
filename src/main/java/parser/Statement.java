@@ -13,6 +13,7 @@ public abstract class Statement {
         R visitIf(If iff);
         R visitReturn(Return ret);
         R visitFunction(Function function);
+        R visitInterrupt(Interrupt interrupt);
     }
 
     abstract <R> R accept(Visitor<R> visitor);
@@ -139,6 +140,16 @@ public abstract class Statement {
         @Override
         <R> R accept(Visitor<R> visitor) {
             return visitor.visitFunction(this);
+        }
+    }
+
+    public static class Interrupt extends Statement {
+
+        public Interrupt() {}
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitInterrupt(this);
         }
     }
 }

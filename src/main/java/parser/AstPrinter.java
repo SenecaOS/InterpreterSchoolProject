@@ -28,7 +28,7 @@ public class AstPrinter implements Expr.Visitor<String>, Statement.Visitor<Strin
     @Override
     public String visitLiteral(Expr.Literal expr) {
         Object value = expr.value;
-        return value == null ? "null" : value.toString();
+        return value.toString();
     }
 
     @Override
@@ -79,16 +79,15 @@ public class AstPrinter implements Expr.Visitor<String>, Statement.Visitor<Strin
 
     @Override
     public String visitLoop(Statement.Loop loop) {
-    return "loop(" + loop.condition.accept(this) + ")\n" +
+        return "loop(" + loop.condition.accept(this) + ")\n" +
                 loop.block.accept(this);
     }
 
     @Override
     public String visitIf(Statement.If iff) {
-        StringBuilder sb =  new StringBuilder();
-        if (iff.condition != null) {
-            sb.append("if(").append(iff.condition.accept(this)).append(")\n");
-        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("if(").append(iff.condition.accept(this)).append(")\n");
+
         sb.append(iff.block.accept(this));
         if (iff.statement != null) {
             sb.append("else ").append(iff.statement.accept(this));
@@ -105,5 +104,10 @@ public class AstPrinter implements Expr.Visitor<String>, Statement.Visitor<Strin
     @Override
     public String visitFunction(Statement.Function function) {
         return "function " + function.name + "(" + function.params + ")\n" + function.block.accept(this);
+    }
+
+    @Override
+    public String visitInterrupt(Statement.Interrupt interrupt) {
+        return "interrupt";
     }
 }

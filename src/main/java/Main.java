@@ -7,9 +7,9 @@ import java.util.List;
 import interpreter.Interpreter;
 import lexer.Scanner;
 import lexer.Token;
-import parser.Expr;
 import parser.Parser;
 import parser.Statement;
+import exceptions.parser.ParserExceptionHandler;
 
 public class Main {
 	private static final Interpreter interpreter = new Interpreter();
@@ -33,6 +33,16 @@ public class Main {
 	private static void run(String source) {
 		Scanner scanner = new Scanner(source);
 		List<Token> tokens = scanner.scanTokens();
+		for(Token token : tokens) {
+			System.out.println(token);
+		}
+		ParserExceptionHandler parserExceptionHandler = new ParserExceptionHandler();
+		Parser parser = new Parser(tokens, parserExceptionHandler);
+		List<Statement> statements = parser.parse();
+		if (parserExceptionHandler.hasExceptions()) {
+			System.out.println(parserExceptionHandler);
+			return;
+		}
 		Parser parser = new Parser(tokens);
 		Expr expression = parser.parseTest();
 		interpreter.interpret(expression);
@@ -49,6 +59,7 @@ public class Main {
 		}
 		
 		//runFile("src/main/java/test.smth");
+		//runFile("src/main/java/large-file.smth");
 	}
 	
 	
