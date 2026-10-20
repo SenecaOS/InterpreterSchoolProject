@@ -9,8 +9,7 @@ public class ParserSyntaxException extends ParserException {
     }
 
     @Override
-    public String toString() {
-        return "Expected " + getMessage() + " at line " + token.getLine() + ", found " + token.getVal();
+    String errorMessage() {
+        return "Expected '" + getMessage() + "' at line " + token.getLine() + ", but found '" + token.getVal() + "'.";
     }
-
 }

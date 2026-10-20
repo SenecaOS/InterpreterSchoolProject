@@ -9,7 +9,7 @@ public class ParserElseException extends ParserException {
     }
 
     @Override
-    public String toString() {
-        return "Found else without if at line " + token.getLine();
+    String errorMessage() {
+        return "Found else without if at line " + token.getLine() + ".";
     }
 }

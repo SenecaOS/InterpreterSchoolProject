@@ -448,11 +448,11 @@ class ParserTest {
         parser.parse();
         Assertions.assertTrue(exceptionHandler.hasExceptions());
         Assertions.assertEquals("""
-                expected expression at line 1, found ;
-                expected ) at line 2, found {
-                expected ) at line 4, found ;
-                Found else without if at line 6
-                reached end of file while parsing
+                Expected 'expression' at line 1, but found ';'.
+                Expected ')' at line 2, but found '{'.
+                Expected ')' at line 4, but found ';'.
+                Found else without if at line 6.
+                Reached end of file while parsing.
                 """, exceptionHandler.printExceptions());
     }
 

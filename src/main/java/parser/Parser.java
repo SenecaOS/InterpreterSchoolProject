@@ -85,7 +85,7 @@ public class Parser {
 
     private Statement.Function functionStatement() {
         String name = consume(IDENTIFIER, "identifier").getVal();
-        consume(LEFT_PARENS, "'(' after identifier.");
+        consume(LEFT_PARENS, "(");
 
         List<String> params = new ArrayList<>();
 
@@ -103,16 +103,16 @@ public class Parser {
             }
         }
 
-        consume(RIGHT_PARENS, "')' after expression.");
+        consume(RIGHT_PARENS, ")");
         Statement.Block block = blockStatement();
         return new Statement.Function(name, block, params);
     }
 
     private Statement.Variable variableStatement() {
         Token token = consume(IDENTIFIER, "identifier");
-        consume(ASSIGNMENT, "'=' after variable name.");
+        consume(ASSIGNMENT, "=");
         Expr expression = expression();
-        consume(TERMINATOR, "';' after expression.");
+        consume(TERMINATOR, ";");
         return new Statement.Variable(token.getVal(), expression);
     }
 
@@ -122,23 +122,23 @@ public class Parser {
             expression = expression();
         } catch (ParserSyntaxException ignored) {
         }
-        consume(TERMINATOR, "';' after expression.");
+        consume(TERMINATOR, ";");
         return new Statement.Return(expression);
     }
 
     private Statement.Loop loopStatement() {
-        consume(LEFT_PARENS, "'(' after loop.");
+        consume(LEFT_PARENS, "(");
         Expr expression = expression();
-        consume(RIGHT_PARENS, "')' after expression.");
+        consume(RIGHT_PARENS, ")");
         Statement.Block block = blockStatement();
         return new Statement.Loop(block, expression);
 
     }
 
     private Statement.If ifStatement() {
-        consume(LEFT_PARENS, "'(' after loop.");
+        consume(LEFT_PARENS, "(");
         Expr expression = expression();
-        consume(RIGHT_PARENS, "')' after expression.");
+        consume(RIGHT_PARENS, ")");
         Statement.Block block = blockStatement();
         Statement elseStatement = null;
 
@@ -157,7 +157,7 @@ public class Parser {
     private Statement.Block blockStatement() {
         depth++;
         if (depth >= MAX_DEPTH) throw new IllegalArgumentException("Reached max depth, consider refactoring your code");
-        consume(LEFT_CURLYBRAC, "'{' at the start of block statement");
+        consume(LEFT_CURLYBRAC, "{");
         List<Statement> statements = new ArrayList<>();
         while (!check(RIGHT_CURLYBRAC) && !isAtEnd()) {
             try {
@@ -166,27 +166,27 @@ public class Parser {
                 handleError(error);
             }
         }
-        consume(RIGHT_CURLYBRAC, "'}' at the end of block statement");
+        consume(RIGHT_CURLYBRAC, "}");
         depth--;
         return new Statement.Block(statements);
     }
 
     private Statement.Print printStatement() {
-        consume(LEFT_PARENS, "'(' after print.");
+        consume(LEFT_PARENS, "(");
         Expr expression = expression();
-        consume(RIGHT_PARENS, "')' after expression.");
-        consume(TERMINATOR, "';' after ).");
+        consume(RIGHT_PARENS, ")");
+        consume(TERMINATOR, ";");
         return new Statement.Print(expression);
     }
 
     private Statement.Interrupt InterruptStatement() {
-        consume(TERMINATOR, "terminator after interrupt");
+        consume(TERMINATOR, ";");
         return new Statement.Interrupt();
     }
 
     private Statement.Expression expressionStatement() {
         Expr expression = expression();
-        consume(TERMINATOR, "';' after expression.");
+        consume(TERMINATOR, ";");
         return new Statement.Expression(expression);
     }
 
@@ -276,7 +276,7 @@ public class Parser {
 
         if (matchAndIncrement(LEFT_PARENS)) {
             Expr expression = expression();
-            consume(RIGHT_PARENS, "')' after expression.");
+            consume(RIGHT_PARENS, ")");
             return new Expr.Grouping(expression);
         }
 
@@ -295,7 +295,7 @@ public class Parser {
         }
 
         List<Expr> arguments = new ArrayList<>();
-        consume(LEFT_PARENS, "'(' after identifier.");
+        consume(LEFT_PARENS, "(");
 
         if (!check(RIGHT_PARENS)) {
 
@@ -304,7 +304,7 @@ public class Parser {
             } while (matchAndIncrement(COMMA));
         }
 
-        consume(RIGHT_PARENS, "')' after expression.");
+        consume(RIGHT_PARENS, ")");
 
         return new Expr.Call(name, arguments);
     }
