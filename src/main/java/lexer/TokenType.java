@@ -21,7 +21,6 @@ public enum TokenType {
 
     STAR,
     SEMICOLON,
-    DOT,
     SLASH,
     EOF,
     STRING,
@@ -40,7 +39,6 @@ public enum TokenType {
     ASSIGNMENT,
     EQUALS,
     ELSE,
-    TERMINATOR,
     RETURN,
     NOTH,
     FALSE,

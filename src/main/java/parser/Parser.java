@@ -7,6 +7,7 @@ import exceptions.parser.ParserElseException;
 import exceptions.parser.ParserException;
 import exceptions.parser.ParserSyntaxException;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +36,15 @@ public class Parser {
     public Parser(List<Token> tokens) {
         this(tokens, null);
     }
+
+    public Expr parseTest(){
+        try{
+            return expression();
+        }catch(Exception error){
+            return null;
+        }
+    }
+
 
     public List<Statement> parse() {
         List<Statement> statements = new ArrayList<>();

@@ -4,6 +4,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
+import interpreter.Interpreter;
 import lexer.Scanner;
 import lexer.Token;
 import parser.Parser;
@@ -11,7 +12,7 @@ import parser.Statement;
 import exceptions.parser.ParserExceptionHandler;
 
 public class Main {
-
+	private static final Interpreter interpreter = new Interpreter();
 	
 	
 	private static boolean isValidFormat(String arg) {
@@ -22,7 +23,8 @@ public class Main {
 	private static void runFile(String path) throws IOException {
 		byte[] bytes = Files.readAllBytes(Paths.get(path));
 		run(new String(bytes, Charset.defaultCharset()));
-					
+
+
 	}
 		
 
@@ -41,6 +43,9 @@ public class Main {
 			System.out.println(parserExceptionHandler);
 			return;
 		}
+		Parser parser = new Parser(tokens);
+		Expr expression = parser.parseTest();
+		interpreter.interpret(expression);
 	}
 
 	public static void main(String [] args) throws IOException {
