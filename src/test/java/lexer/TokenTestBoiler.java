@@ -8,9 +8,6 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
 
-
-
-
 public class TokenTestBoiler {
 
     static String[] testInputs = {
@@ -74,11 +71,6 @@ public class TokenTestBoiler {
 
         }
         writer.println("\t}");
-
-
-
-
-
         writer.println("}");
         writer.close();
     }

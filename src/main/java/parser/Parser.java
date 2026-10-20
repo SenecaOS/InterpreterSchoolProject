@@ -3,6 +3,7 @@ package parser;
 import lexer.Token;
 import lexer.TokenType;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +25,15 @@ public class Parser {
     public Parser(List<Token> tokens) {
         this.tokens = tokens;
     }
+
+    public Expr parseTest(){
+        try{
+            return expression();
+        }catch(Exception error){
+            return null;
+        }
+    }
+
 
     public List<Statement> parse() {
         List<Statement> statements = new ArrayList<>();

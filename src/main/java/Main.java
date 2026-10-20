@@ -4,11 +4,15 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
+import interpreter.Interpreter;
 import lexer.Scanner;
 import lexer.Token;
+import parser.Expr;
+import parser.Parser;
+import parser.Statement;
 
 public class Main {
-
+	private static final Interpreter interpreter = new Interpreter();
 	
 	
 	private static boolean isValidFormat(String arg) {
@@ -19,7 +23,8 @@ public class Main {
 	private static void runFile(String path) throws IOException {
 		byte[] bytes = Files.readAllBytes(Paths.get(path));
 		run(new String(bytes, Charset.defaultCharset()));
-					
+
+
 	}
 		
 
@@ -28,10 +33,9 @@ public class Main {
 	private static void run(String source) {
 		Scanner scanner = new Scanner(source);
 		List<Token> tokens = scanner.scanTokens();
-		for(Token token : tokens) {
-			System.out.println(token);
-		}
-		
+		Parser parser = new Parser(tokens);
+		Expr expression = parser.parseTest();
+		interpreter.interpret(expression);
 	}
 
 	public static void main(String [] args) throws IOException {
