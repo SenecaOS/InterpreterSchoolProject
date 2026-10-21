@@ -456,6 +456,20 @@ class ParserTest {
     }
 
     @Test
+    void givenInvalidArgument_throwError() {
+        List<Token> tokens = List.of(identifier("bar"), leftParens(), valueToken(1.0), createToken(COMMA), rightParens(), terminator(), end());
+        Parser parser = new Parser(tokens);
+        Assertions.assertThrows(ParserSyntaxException.class, parser::parse);
+    }
+
+    @Test
+    void givenInvalidNextArgument_throwError() {
+        List<Token> tokens = List.of(identifier("bar"), leftParens(), createToken(COMMA),valueToken(2.0), rightParens(), terminator(), end());
+        Parser parser = new Parser(tokens);
+        Assertions.assertThrows(ParserSyntaxException.class, parser::parse);
+    }
+
+    @Test
     void givenValidVariable_returnVariableExpression() {
         List<Token> tokens = List.of(identifier("bar"), terminator(), end());
         Parser parser = new Parser(tokens);

@@ -36,14 +36,6 @@ public class Parser {
         this(tokens, null);
     }
 
-    public Expr parseTest(){
-        try{
-            return expression();
-        }catch(Exception error){
-            return null;
-        }
-    }
-
     public List<Statement> parse() {
         List<Statement> statements = new ArrayList<>();
 
