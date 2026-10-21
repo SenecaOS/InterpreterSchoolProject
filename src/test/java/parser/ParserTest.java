@@ -1,14 +1,11 @@
 package parser;
 
-import lexer.Scanner;
+import exceptions.parser.ParserExceptionHandler;
+import exceptions.parser.ParserSyntaxException;
 import lexer.Token;
 import lexer.TokenType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
-import exceptions.parser.ParserExceptionHandler;
-import exceptions.parser.ParserSyntaxException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -100,36 +97,76 @@ class ParserTest {
         assertThrows(ParserSyntaxException.class, parser::parse);
     }
 
-    @ParameterizedTest
-    @CsvSource({
-            "2 + 3 - 4 ;, ((2.0 + 3.0) - 4.0)",
-            "3 + 5 * 6 ;, (3.0 + (5.0 * 6.0))",
-            "2 / ( - 3 + 2 ) ;, (2.0 / (((-3.0) + 2.0)))",
-            "3 + \"string\";, (3.0 + string)",
-            "2 != 3 ;, (2.0 != 3.0)",
-            "true & 5 == a + b | 2 ;, ((true & (5.0 == (var: a + var: b))) | 2.0)"
-    })
-    void givenValidExpression_ReturnExpressionStatement(String input, String expected) {
-        Scanner scanner = new Scanner(input);
-        List<Token> tokens = scanner.scanTokens();
+    @Test
+    void givenArithmeticExpression_ReturnExpressionStatement() {
+        List<Token> tokens = List.of(valueToken(2.0), createToken(PLUS, "+"), valueToken(3.0), createToken(MINUS, "-"), valueToken(4.0), terminator(), end());
         Parser parser = new Parser(tokens);
         List<Statement> statements = parser.parse();
-        Assertions.assertEquals(expected, toPrint(statements));
+        Assertions.assertEquals("((2.0 + 3.0) - 4.0)", toPrint(statements));
     }
 
-    @ParameterizedTest
-    @CsvSource({
-            "2 + ( 3",
-            "* 4 5",
-            "- ",
+    @Test
+    void givenFactorExpression_ReturnExpressionStatement() {
+        List<Token> tokens = List.of(valueToken(3.0), createToken(PLUS, "+"), valueToken(5.0), createToken(STAR, "*"), valueToken(6.0), terminator(), end());
+        Parser parser = new Parser(tokens);
+        List<Statement> statements = parser.parse();
+        Assertions.assertEquals("(3.0 + (5.0 * 6.0))", toPrint(statements));
+    }
 
-    })
-    void givenInvalidExpression_ThrowError(String input) {
-        Scanner scanner = new Scanner(input);
-        List<Token> tokens = scanner.scanTokens();
+    @Test
+    void givenParensExpression_ReturnExpressionStatement() {
+        List<Token> tokens = List.of(valueToken(2.0), createToken(SLASH, "/"), leftParens(), createToken(MINUS, "-"), valueToken(3.0), createToken(PLUS, "+"), valueToken(2.0), rightParens(), terminator(), end());
+        Parser parser = new Parser(tokens);
+        List<Statement> statements = parser.parse();
+        Assertions.assertEquals("(2.0 / (((-3.0) + 2.0)))", toPrint(statements));
+    }
+
+    @Test
+    void givenStringExpression_ReturnExpressionStatement() {
+        List<Token> tokens = List.of(valueToken(3.0), createToken(PLUS, "+"), stringToken("string"), terminator(), end());
+        Parser parser = new Parser(tokens);
+        List<Statement> statements = parser.parse();
+        Assertions.assertEquals("(3.0 + string)", toPrint(statements));
+    }
+
+    @Test
+    void givenComparisonExpression_ReturnExpressionStatement() {
+        List<Token> tokens = List.of(valueToken(2.0), createToken(NOT_EQUALS, "!="), valueToken(3.0), terminator(), end());
+        Parser parser = new Parser(tokens);
+        List<Statement> statements = parser.parse();
+        Assertions.assertEquals("(2.0 != 3.0)", toPrint(statements));
+    }
+
+    @Test
+    void givenLogicalExpression_ReturnExpressionStatement() {
+        List<Token> tokens = List.of(createToken(TRUE, "true"), createToken(AND, "&"), valueToken(5.0), createToken(EQUALS, "=="), identifier("a"), createToken(PLUS, "+"), identifier("b"), createToken(OR, "|"), valueToken(2.0), terminator(), end());
+        Parser parser = new Parser(tokens);
+        List<Statement> statements = parser.parse();
+        Assertions.assertEquals("((true & (5.0 == (var: a + var: b))) | 2.0)", toPrint(statements));
+    }
+
+    @Test
+    void givenNotFinishedParens_throwError() {
+        List<Token> tokens = List.of(valueToken(2.0), createToken(PLUS), leftParens(), valueToken(3.0), end());
         Parser parser = new Parser(tokens);
         assertThrows(ParserSyntaxException.class, parser::parse);
     }
+
+    @Test
+    void givenIncorrectFactorPattern_throwError() {
+        List<Token> tokens = List.of(createToken(STAR), valueToken(4.0), valueToken(5.0), end());
+        Parser parser = new Parser(tokens);
+        assertThrows(ParserSyntaxException.class, parser::parse);
+    }
+
+    @Test
+    void givenOnlyMinus_throwError() {
+        List<Token> tokens = List.of(createToken(MINUS), end());
+        Parser parser = new Parser(tokens);
+        assertThrows(ParserSyntaxException.class, parser::parse);
+    }
+
+
 
     @Test
     void givenValidVariable_ReturnVariableStatement() {
@@ -430,20 +467,17 @@ class ParserTest {
 
     @Test
     void givenMultipleInValidSyntax_printOutTheCorrectErrors() {
-        String input = """
-                smth a = ;
-                loop ( 2  {
-                	if ( a > 5 ) {
-                		print ( "bigger"  ;
-                
-                	else {
-                		print ( "smaller" ) ;
-                	}
-                }
-                """;
-        Scanner scanner = new Scanner(input);
+        List<Token> tokens = List.of(
+                createToken(SMTH), identifier("a"), createToken(ASSIGNMENT), terminator(),
+                createToken(LOOP), leftParens(), valueToken(2.0), leftCurlybracket(),
+                createToken(IF), leftParens(), identifier("a"), createToken(GREATER), valueToken(5.0), rightParens(), leftCurlybracket(),
+                print(), leftParens(), stringToken("bigger"), terminator(),
+                createToken(ELSE), leftCurlybracket(),
+                print(), leftParens(), stringToken("smaller"), rightParens(), terminator(),
+                rightCurlyBracket(),
+                rightCurlyBracket(), end());
         ParserExceptionHandler parserExceptionHandler = new ParserExceptionHandler();
-        Parser parser = new Parser(scanner.scanTokens(), parserExceptionHandler);
+        Parser parser = new Parser(tokens, parserExceptionHandler);
 
         parser.parse();
         Assertions.assertTrue(parserExceptionHandler.hasExceptions());
