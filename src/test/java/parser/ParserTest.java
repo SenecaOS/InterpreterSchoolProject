@@ -473,7 +473,7 @@ class ParserTest {
                 createToken(IF), leftParens(), identifier("a"), createToken(GREATER), valueToken(5.0), rightParens(), leftCurlybracket(),
                 print(), leftParens(), stringToken("bigger"), terminator(),
                 createToken(ELSE), leftCurlybracket(),
-                print(), leftParens(), stringToken("smaller"), rightParens(), terminator(),
+                print(), leftParens(), stringToken("smaller"), rightParens(),
                 rightCurlyBracket(),
                 rightCurlyBracket(), end());
         ParserExceptionHandler parserExceptionHandler = new ParserExceptionHandler();
@@ -482,16 +482,17 @@ class ParserTest {
         parser.parse();
         Assertions.assertTrue(parserExceptionHandler.hasExceptions());
         Assertions.assertEquals("""
-                Expected 'expression' at line 1, but found ';'.
-                Expected ')' at line 2, but found '{'.
-                Expected ')' at line 4, but found ';'.
-                Found else without if at line 6.
+                Expected 'expression' at line 0, but found ';'.
+                Expected ')' at line 0, but found '{'.
+                Expected ')' at line 0, but found ';'.
+                Found else without if at line 0.
+                Expected ';' at line 0, but found '}'.
                 Reached end of file while parsing.
                 """, parserExceptionHandler.printExceptions());
     }
 
     @Test
-    void givenValidInterrupt_returnInteruptStatement() {
+    void givenValidInterrupt_returnInterruptStatement() {
         List<Token> tokens = List.of(createToken(INTERRUPT), terminator(), end());
         Parser parser = new Parser(tokens);
         String expected = "interrupt";
