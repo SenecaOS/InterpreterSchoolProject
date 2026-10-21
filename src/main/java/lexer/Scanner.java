@@ -216,17 +216,13 @@ public class Scanner {
 	private void lexNum() {
 		String[] opBlankSepVals = source.substring(start).split("[ \\t\n*/=()+\\-\\[\\]]+");
 		String num = opBlankSepVals[0];
-		//try {
+		current += num.length() - 1;
 			// If we reach EOF without reading the terminating '"'
 			if (num.matches("[0-9]+(\\.[0-9]*)?")) {
-				current += num.length() - 1;
 				addToken(TokenType.VALUE, Double.parseDouble(source.substring(start, current)));
 			} else
 				throw new IllegalArgumentException("Illegal token input on line " + nline);
 
-		/*} catch (IllegalArgumentException e) {
-			System.err.println(e.getMessage());
-		}*/
 		
 		
 		/*
@@ -320,10 +316,10 @@ public class Scanner {
         current += identifier.length();
         TokenType type = null;
         if((type = reservedWords.get(identifier)) != null) { 
-        	addToken(type, source.substring(start + 1, current - 1));
+        	addToken(type, source.substring(start + 1, current));
         	return;
         }
-        addToken(TokenType.IDENTIFIER, source.substring(start + 1, current - 1));
+        addToken(TokenType.IDENTIFIER, source.substring(start + 1, current));
     }
 /* FOR ALTERNATIVE TESTING METHOD WITHOUT HASHMAP
 	private boolean isAnum(int c) {
