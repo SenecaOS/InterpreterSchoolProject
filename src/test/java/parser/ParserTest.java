@@ -73,7 +73,7 @@ class ParserTest {
     }
 
     Token terminator() {
-        return new Token(TERMINATOR, ";", null, 0);
+        return new Token(SEMICOLON, ";", null, 0);
     }
 
     private int getArity(Statement statement) {

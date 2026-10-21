@@ -43,9 +43,9 @@ public class Main {
 			System.out.println(parserExceptionHandler);
 			return;
 		}
-		Parser parser = new Parser(tokens);
+		/*Parser parser = new Parser(tokens);
 		Expr expression = parser.parseTest();
-		interpreter.interpret(expression);
+		interpreter.interpret(expression);*/
 	}
 
 	public static void main(String [] args) throws IOException {
