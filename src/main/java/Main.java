@@ -1,3 +1,4 @@
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -7,14 +8,16 @@ import java.util.List;
 import interpreter.Interpreter;
 import lexer.Scanner;
 import lexer.Token;
+import parser.Expr;
 import parser.Parser;
 import parser.Statement;
 import exceptions.parser.ParserExceptionHandler;
 
 public class Main {
 	private static final Interpreter interpreter = new Interpreter();
-	
-	
+	private static boolean hadError;
+
+
 	private static boolean isValidFormat(String arg) {
 		return arg.matches(".*\\.smth$");
 		
@@ -43,24 +46,20 @@ public class Main {
 			System.out.println(parserExceptionHandler);
 			return;
 		}
-		Parser parser = new Parser(tokens);
+		parser = new Parser(tokens);
 		Expr expression = parser.parseTest();
 		interpreter.interpret(expression);
 	}
 
 	public static void main(String [] args) throws IOException {
-		if(args.length < 1) {
+		if (args.length < 1) {
 			System.out.println("No arguments passed in, program will now exit");
 			return;
 		}
-		
-		if(isValidFormat(args[0])) {
-			runFile(args[0]);	
+		if (isValidFormat(args[0])) {
+			runFile(args[0]);
 		}
-		
 		//runFile("src/main/java/test.smth");
 		//runFile("src/main/java/large-file.smth");
 	}
-	
-	
 }
