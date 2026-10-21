@@ -1,5 +1,8 @@
 package lexer;
 
+
+import exceptions.lexer.LexerException;
+import exceptions.lexer.LexerExceptionHandler;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,6 +16,7 @@ public class Scanner {
 	private int current = 0;
 	private int nline = 1;
 	private static final HashMap<String, TokenType> reservedWords;
+	LexerExceptionHandler exceptionHandler;
 	
 	
 	static {
@@ -33,8 +37,17 @@ public class Scanner {
 
 	public Scanner(String source) {
 		this.source = source;
-		
 
+	}
+
+	public Scanner(String source, LexerExceptionHandler exceptionHandler){
+		this.source = source;
+		this.exceptionHandler = exceptionHandler;
+
+	}
+
+	public LexerExceptionHandler getExceptionHandler(){
+		return exceptionHandler;
 	}
 
 	public List<Token> scanTokens() {
@@ -42,10 +55,12 @@ public class Scanner {
 			start = current;
 			scanToken();
 		}
-
 		tokens.add(new Token(TokenType.EOF, "", null, nline));
+		if(exceptionHandler != null && exceptionHandler.hasExceptions()){
+			System.err.println(exceptionHandler.printExceptions());
+			throw new RuntimeException();
+		}
 		return tokens;
-
 	}
 
 	private char advance() {
@@ -217,13 +232,13 @@ public class Scanner {
 		String[] opBlankSepVals = source.substring(start).split("[ \\t\n*/=()+\\-\\[\\]]+");
 		String num = opBlankSepVals[0];
 		current += num.length() - 1;
-			// If we reach EOF without reading the terminating '"'
-			if (num.matches("[0-9]+(\\.[0-9]*)?")) {
-				addToken(TokenType.VALUE, Double.parseDouble(source.substring(start, current)));
-			} else
-				throw new IllegalArgumentException("Illegal token input on line " + nline);
+		// If we reach EOF without reading the terminating '"'
+		if (num.matches("[0-9]+(\\.[0-9]*)?")) {
+			addToken(TokenType.VALUE, Double.parseDouble(source.substring(start, current)));
+		} else {
+			handleError(new LexerException(new Token(TokenType.VALUE, null, null, nline)));
 
-		
+		}
 		
 		/*
 		int currChar = source.charAt(current - 1);
@@ -278,7 +293,8 @@ public class Scanner {
 		//try {
 		// If we reach EOF without reading the terminating '"'
 		if (peek() != '"') {
-			throw new IllegalArgumentException("Unterminated string on line " + nline);
+			handleError(new LexerException(new Token(TokenType.STRING, null, null, nline)));
+			return;
 		}
 		/*}catch(IllegalArgumentException e) {
 			System.err.println(e.getMessage());
@@ -357,9 +373,16 @@ public class Scanner {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		for (Token tok : tokens) {
-			sb.append(tok + " ");
+			sb.append(tok).append(" ");
 		}
 		return sb.toString();
+	}
+
+	public void handleError(LexerException error){
+		if(exceptionHandler != null){
+			exceptionHandler.addException(error);
+		}
+		else throw error;
 	}
 
 }

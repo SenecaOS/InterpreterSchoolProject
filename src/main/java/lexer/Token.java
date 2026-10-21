@@ -12,8 +12,8 @@ public class Token {
 		this.tokenType = type;
 		this.nline = nline;
 		this.literal = literal;
-		
 	}
+
 	public TokenType getTokenType() {
 		return tokenType;
 	}

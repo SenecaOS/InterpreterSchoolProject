@@ -122,7 +122,7 @@ public class Parser {
         Token token = consume(IDENTIFIER, "identifier");
         consume(ASSIGNMENT, "=");
         Expr expression = expression();
-        consume(TERMINATOR, ";");
+        consume(SEMICOLON, ";");
         return new Statement.Variable(token.getVal(), expression);
     }
 
@@ -132,7 +132,7 @@ public class Parser {
             expression = expression();
         } catch (ParserSyntaxException ignored) {
         }
-        consume(TERMINATOR, ";");
+        consume(SEMICOLON, ";");
         return new Statement.Return(expression);
     }
 
@@ -185,18 +185,18 @@ public class Parser {
         consume(LEFT_PARENS, "(");
         Expr expression = expression();
         consume(RIGHT_PARENS, ")");
-        consume(TERMINATOR, ";");
+        consume(SEMICOLON, ";");
         return new Statement.Print(expression);
     }
 
     private Statement.Interrupt InterruptStatement() {
-        consume(TERMINATOR, ";");
+        consume(SEMICOLON, ";");
         return new Statement.Interrupt();
     }
 
     private Statement.Expression expressionStatement() {
         Expr expression = expression();
-        consume(TERMINATOR, ";");
+        consume(SEMICOLON, ";");
         return new Statement.Expression(expression);
     }
 

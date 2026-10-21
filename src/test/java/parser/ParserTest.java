@@ -72,8 +72,8 @@ class ParserTest {
         return new Token(IDENTIFIER, val, val, 0);
     }
 
-    Token terminator() {
-        return new Token(TERMINATOR, ";", null, 0);
+    Token SEMICOLON() {
+        return new Token(SEMICOLON, ";", null, 0);
     }
 
     private int getArity(Statement statement) {
@@ -86,7 +86,7 @@ class ParserTest {
 
     @Test
     void GivenValidPrint_ReturnPrintStatement() {
-        List<Token> tokens = List.of(print(), leftParens(), stringToken("Hello world"), rightParens(), terminator(), end());
+        List<Token> tokens = List.of(print(), leftParens(), stringToken("Hello world"), rightParens(), SEMICOLON(), end());
 
         Parser parser = new Parser(tokens);
         List<Statement> statements = parser.parse();
@@ -95,7 +95,7 @@ class ParserTest {
 
     @Test
     void givenInvalidPrint_ThrowError() {
-        List<Token> tokens = List.of(print(), leftParens(), stringToken("Hello world"), terminator(), end());
+        List<Token> tokens = List.of(print(), leftParens(), stringToken("Hello world"), SEMICOLON(), end());
         Parser parser = new Parser(tokens);
         assertThrows(ParserSyntaxException.class, parser::parse);
     }
@@ -133,14 +133,14 @@ class ParserTest {
 
     @Test
     void givenValidVariable_ReturnVariableStatement() {
-        List<Token> tokens = List.of(createToken(SMTH), createToken(IDENTIFIER, "newVar"), createToken(ASSIGNMENT), valueToken(5.0), terminator(), end());
+        List<Token> tokens = List.of(createToken(SMTH), createToken(IDENTIFIER, "newVar"), createToken(ASSIGNMENT), valueToken(5.0), SEMICOLON(), end());
         Parser parser = new Parser(tokens);
         Assertions.assertEquals("newVar = 5.0", toPrint(parser.parse()));
     }
 
     @Test
     void givenInValidVariable_ReturnVariableStatement() {
-        List<Token> tokens = List.of(createToken(SMTH), valueToken(3.0), createToken(ASSIGNMENT), stringToken("newVar"), terminator(), end());
+        List<Token> tokens = List.of(createToken(SMTH), valueToken(3.0), createToken(ASSIGNMENT), stringToken("newVar"), SEMICOLON(), end());
         Parser parser = new Parser(tokens);
         assertThrows(ParserSyntaxException.class, parser::parse);
     }
@@ -148,8 +148,8 @@ class ParserTest {
     @Test
     void GivenValidLoop_ReturnLoopStatement() {
         List<Token> tokens = List.of(createToken(LOOP), leftParens(), valueToken(3.0), rightParens(), leftCurlybracket(),
-                createToken(SMTH), createToken(IDENTIFIER, "newVar"), createToken(ASSIGNMENT), valueToken(5.0), terminator(),
-                print(), leftParens(), stringToken("Hello world"), rightParens(), terminator(),
+                createToken(SMTH), createToken(IDENTIFIER, "newVar"), createToken(ASSIGNMENT), valueToken(5.0), SEMICOLON(),
+                print(), leftParens(), stringToken("Hello world"), rightParens(), SEMICOLON(),
                 rightCurlyBracket(), end());
 
         Parser parser = new Parser(tokens);
@@ -184,7 +184,7 @@ class ParserTest {
     void givenValidIfStatement_ReturnIfStatement() {
         List<Token> tokens = List.of(
                 createToken(IF), leftParens(), createToken(TRUE), rightParens(), leftCurlybracket(),
-                print(), leftParens(), stringToken("Hello world"), rightParens(), terminator(),
+                print(), leftParens(), stringToken("Hello world"), rightParens(), SEMICOLON(),
                 rightCurlyBracket()
                 , end()
         );
@@ -204,9 +204,9 @@ class ParserTest {
     void givenValidIfAndElseStatement_ReturnIfStatementWithElse() {
         List<Token> tokens = List.of(
                 createToken(IF), leftParens(), createToken(TRUE), rightParens(), leftCurlybracket(),
-                print(), leftParens(), stringToken("Hello world"), rightParens(), terminator(),
+                print(), leftParens(), stringToken("Hello world"), rightParens(), SEMICOLON(),
                 rightCurlyBracket(), createToken(ELSE), leftCurlybracket(),
-                print(), leftParens(), stringToken("Hello world"), rightParens(), terminator(),
+                print(), leftParens(), stringToken("Hello world"), rightParens(), SEMICOLON(),
                 rightCurlyBracket()
                 , end()
         );
@@ -228,11 +228,11 @@ class ParserTest {
     void givenValidElseIfStatement_ReturnIfStatementWithElseIf() {
         List<Token> tokens = List.of(
                 createToken(IF), leftParens(), createToken(TRUE), rightParens(), leftCurlybracket(),
-                print(), leftParens(), stringToken("Hello world"), rightParens(), terminator(),
+                print(), leftParens(), stringToken("Hello world"), rightParens(), SEMICOLON(),
                 rightCurlyBracket(), createToken(ELSE), createToken(IF), leftParens(), createToken(TRUE), rightParens(), leftCurlybracket(),
-                print(), leftParens(), stringToken("Hello world"), rightParens(), terminator(),
+                print(), leftParens(), stringToken("Hello world"), rightParens(), SEMICOLON(),
                 rightCurlyBracket(), createToken(ELSE), leftCurlybracket(),
-                print(), leftParens(), stringToken("Hello world"), rightParens(), terminator(),
+                print(), leftParens(), stringToken("Hello world"), rightParens(), SEMICOLON(),
                 rightCurlyBracket()
                 , end()
         );
@@ -257,7 +257,7 @@ class ParserTest {
     @Test
     void givenElseInsteadOfIf_throwError() {
         List<Token> tokens = List.of(createToken(ELSE), leftParens(), createToken(TRUE), rightParens(), leftCurlybracket(),
-                print(), leftParens(), stringToken("Hello world"), rightParens(), terminator(),
+                print(), leftParens(), stringToken("Hello world"), rightParens(), SEMICOLON(),
                 rightCurlyBracket()
         );
 
@@ -269,7 +269,7 @@ class ParserTest {
     void givenIfWithNoCondition_throwError() {
         List<Token> tokens = List.of(
                 createToken(IF), leftParens(), rightParens(), leftCurlybracket(),
-                print(), leftParens(), stringToken("Hello world"), rightParens(), terminator(),
+                print(), leftParens(), stringToken("Hello world"), rightParens(), SEMICOLON(),
                 rightCurlyBracket()
                 , end()
         );
@@ -280,7 +280,7 @@ class ParserTest {
 
     @Test
     void givenReturnWithExpression_returnReturnStatement() {
-        List<Token> tokens = List.of(createToken(RETURN), valueToken(3.0), terminator(), end());
+        List<Token> tokens = List.of(createToken(RETURN), valueToken(3.0), SEMICOLON(), end());
         Parser parser = new Parser(tokens);
         String expected = "return 3.0";
         Assertions.assertEquals(expected, toPrint(parser.parse()));
@@ -290,8 +290,8 @@ class ParserTest {
     void givenReturnWithNoExpression_returnReturnStatementWithNull() {
         List<Token> tokens = List.of(
                 createToken(IF), leftParens(), createToken(TRUE), rightParens(), leftCurlybracket(),
-                print(), leftParens(), stringToken("Hello world"), rightParens(), terminator(),
-                createToken(RETURN), terminator(),
+                print(), leftParens(), stringToken("Hello world"), rightParens(), SEMICOLON(),
+                createToken(RETURN), SEMICOLON(),
                 rightCurlyBracket()
                 , end());
         Parser parser = new Parser(tokens);
@@ -393,7 +393,7 @@ class ParserTest {
 
     @Test
     void givenValidEmptyCall_returnCallExpression() {
-        List<Token> tokens = List.of(identifier("bar"), leftParens(), rightParens(), terminator(), end());
+        List<Token> tokens = List.of(identifier("bar"), leftParens(), rightParens(), SEMICOLON(), end());
         Parser parser = new Parser(tokens);
         String expected = "call: bar([])";
         List<Statement> statements = parser.parse();
@@ -402,7 +402,7 @@ class ParserTest {
 
     @Test
     void givenValidArity1Call_returnCallExpressionWithArity1() {
-        List<Token> tokens = List.of(identifier("bar"), leftParens(), valueToken(1.0), createToken(PLUS, "+"), valueToken(2.0), rightParens(), terminator(), end());
+        List<Token> tokens = List.of(identifier("bar"), leftParens(), valueToken(1.0), createToken(PLUS, "+"), valueToken(2.0), rightParens(), SEMICOLON(), end());
         Parser parser = new Parser(tokens);
         String expected = "call: bar([(1.0 + 2.0)])";
         List<Statement> statements = parser.parse();
@@ -411,7 +411,7 @@ class ParserTest {
 
     @Test
     void givenValidArity3Call_returnCallExpressionWithArity3() {
-        List<Token> tokens = List.of(identifier("bar"), leftParens(), createToken(TRUE), createToken(COMMA), createToken(MINUS, "-"), valueToken(5.0), createToken(COMMA), identifier("foo"), leftParens(), identifier("num"), rightParens(), rightParens(), terminator(), end());
+        List<Token> tokens = List.of(identifier("bar"), leftParens(), createToken(TRUE), createToken(COMMA), createToken(MINUS, "-"), valueToken(5.0), createToken(COMMA), identifier("foo"), leftParens(), identifier("num"), rightParens(), rightParens(), SEMICOLON(), end());
         Parser parser = new Parser(tokens);
         String expected = "call: bar([true, (-5.0), call: foo([var: num])])";
         List<Statement> statements = parser.parse();
@@ -420,7 +420,7 @@ class ParserTest {
 
     @Test
     void givenValidVariable_returnVariableExpression() {
-        List<Token> tokens = List.of(identifier("bar"), terminator(), end());
+        List<Token> tokens = List.of(identifier("bar"), SEMICOLON(), end());
         Parser parser = new Parser(tokens);
         String expected = "var: bar";
         List<Statement> statements = parser.parse();
@@ -458,7 +458,7 @@ class ParserTest {
 
     @Test
     void givenValidInterrupt_returnInteruptStatement() {
-        List<Token> tokens = List.of(createToken(INTERRUPT), terminator(), end());
+        List<Token> tokens = List.of(createToken(INTERRUPT), SEMICOLON(), end());
         Parser parser = new Parser(tokens);
         String expected = "interrupt";
         List<Statement> statements = parser.parse();
