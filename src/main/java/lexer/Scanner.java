@@ -46,9 +46,6 @@ public class Scanner {
 
 	}
 
-	public LexerExceptionHandler getExceptionHandler(){
-		return exceptionHandler;
-	}
 
 	public List<Token> scanTokens() {
 		while (!isAtEnd()) {
@@ -229,15 +226,21 @@ public class Scanner {
 	}
 
 	private void lexNum() {
-		String[] opBlankSepVals = source.substring(start).split("[ \\t\n*/=()+\\-\\[\\]]+");
-		String num = opBlankSepVals[0];
-		current += num.length() - 1;
-		// If we reach EOF without reading the terminating '"'
-		if (num.matches("[0-9]+(\\.[0-9]*)?")) {
-			addToken(TokenType.VALUE, Double.parseDouble(source.substring(start, current)));
-		} else {
-			handleError(new LexerException(new Token(TokenType.VALUE, null, null, nline)));
+		while (!isAtEnd() && isNum(peek())) {
+			advance();
+		}
+		if(peek() == '.'){
+			advance();
+			while (!isAtEnd() && isNum(peek())) {
+				advance();
+			}
+		}
 
+		String temp = source.substring(start, current);
+		addToken(TokenType.VALUE, Double.parseDouble(source.substring(start, current)));
+		if(!isAcceptableNumEnding(peek()) || peek() == '.'){
+			++current;
+			handleError(new LexerException(new Token(TokenType.VALUE, null, null, nline)));
 		}
 		
 		/*
@@ -253,36 +256,14 @@ public class Scanner {
 		}
 		addToken(TokenType.VALUE, Double.parseDouble(source.substring(start, current)));*/
 	}
-/* FOR ALTERNATIVE TESTING WITHOUT HASHMAP
-	private boolean inputMatchesWord(String word) {
-	
-		if(isAnumAfterWord(word) || current + word.length() > source.length()) return false;
-		int isMatching = word.compareTo(source.substring(current, current + word.length()));
-	
-		if(isMatching == 0){
-			consumeRemainingLetters(word);
-			return true;
-		}	
-		return false;
+
+	private boolean isAcceptableNumEnding(int c) {
+		return isOperator(c) || isBlank(c) || c == '\0' || c == ';' || c == ')';
 	}
 
-	private void consumeRemainingLetters(String word) {
-		
-		for (int i = 0; i < word.length(); i++) {
-			advance();
-		}
-		
+	private boolean isOperator(int c) {
+		return c == '*' || c == '+' || c == '-' || c == '/' || c == '=';
 	}
-	
-	private boolean isAnumAfterWord(String word) {
-		
-		//e.g. we want to inspect 'a' in loopa. We are already 1 index deep into the word from our switch statement 
-		int inspectedIndex = current + word.length(); //4
-		return inspectedIndex <= source.length() - 1 && isAnum(source.charAt(inspectedIndex));
-		
-		
-	}
-	*/
 
 	private void lexString() {
 		while (!isAtEnd() && peek() != '"') {
@@ -290,16 +271,12 @@ public class Scanner {
 				++nline;
 			advance();
 		}
-		//try {
+
 		// If we reach EOF without reading the terminating '"'
 		if (peek() != '"') {
 			handleError(new LexerException(new Token(TokenType.STRING, null, null, nline)));
 			return;
 		}
-		/*}catch(IllegalArgumentException e) {
-			System.err.println(e.getMessage());
-			
-		}*/
 
 		// consume '"'
 		advance();
@@ -307,42 +284,26 @@ public class Scanner {
 		// Strip '"' at start and end of substring
 		addToken(TokenType.STRING, source.substring(start + 1, current - 1));
 	}
-	
-	/* FOR WHENEVER WE WANT TO TEST THE ALTERNATIVE APPROACH WITHOUT USING HASHMAP
-	 
-	 * private void lexIdentifier() {
+
+
+	private void lexIdentifier() {
 
 		while (!isAtEnd() && isAnum(peek())) {
 			advance();
 		}
-
-		if (!isAtEnd() && !isBlank(source.charAt(current - 1)) && !isAnum(source.charAt(current - 1))) {
-			throw new IllegalArgumentException("Identifier assumes incorrect format on line " + nline);
-
-		}
-		addToken(TokenType.IDENTIFIER);
-	}
-
-	 */
-
-	private void lexIdentifier() {
-        String[] blankSeparatedVals = source.substring(start).split("[ \\t\\}\\(\\)\\/\\=\\-\\;\\+\\*\\\n\\>\\<]+");
-        String identifier = blankSeparatedVals[0];
-        current = start;
-        current += identifier.length();
         TokenType type = null;
-        if((type = reservedWords.get(identifier)) != null) { 
-        	addToken(type, source.substring(start + 1, current));
+        if((type = reservedWords.get(source.substring(start, current))) != null) {
+        	addToken(type, source.substring(start, current));
         	return;
         }
-        addToken(TokenType.IDENTIFIER, source.substring(start + 1, current));
+        addToken(TokenType.IDENTIFIER, source.substring(start, current));
     }
-/* FOR ALTERNATIVE TESTING METHOD WITHOUT HASHMAP
+
 	private boolean isAnum(int c) {
 		return isNum(c) || isAlpha(c);
 
 	}
-*/
+
 	private boolean isNum(int c) {
 		return c >= '0' && c <= '9';
 
@@ -352,11 +313,9 @@ public class Scanner {
 		return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c == '_';
 
 	}
-/* METHOD FOR ALTERNATIVE WITHOUT HASHMAP
 	private boolean isBlank(int c) {
-		return c == ' ' || c == '\t' || c == '\n';
+		return c == ' ' || c == '\t';
 	}
-*/
 	public List<Token> getTokens() {
 
 		return List.copyOf(tokens);

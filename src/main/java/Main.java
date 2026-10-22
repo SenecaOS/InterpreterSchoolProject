@@ -36,9 +36,7 @@ public class Main {
 	private static void run(String source) {
 		Scanner scanner = new Scanner(source);
 		List<Token> tokens = scanner.scanTokens();
-		for(Token token : tokens) {
-			System.out.println(token);
-		}
+		/*
 		ParserExceptionHandler parserExceptionHandler = new ParserExceptionHandler();
 		Parser parser = new Parser(tokens, parserExceptionHandler);
 		List<Statement> statements = parser.parse();
@@ -48,7 +46,7 @@ public class Main {
 		}
 		parser = new Parser(tokens);
 		Expr expression = parser.parseTest();
-		interpreter.interpret(expression);
+		interpreter.interpret(expression);*/
 	}
 
 	public static void main(String [] args) throws IOException {
@@ -56,10 +54,10 @@ public class Main {
 			System.out.println("No arguments passed in, program will now exit");
 			return;
 		}
-		if (isValidFormat(args[0])) {
+		/*if (isValidFormat(args[0])) {
 			runFile(args[0]);
-		}
+		}*/
 		//runFile("src/main/java/test.smth");
-		//runFile("src/main/java/large-file.smth");
+		runFile("src/main/java/large-file.smth");
 	}
 }
