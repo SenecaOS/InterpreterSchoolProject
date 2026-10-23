@@ -69,6 +69,7 @@ public class TokenTestBoiler {
             writer.println("assertEquals(\"" + testInputs[index++] +"\", scanner.getTokens().get(0).getVal());\n\n");
 
 
+
         }
         writer.println("\t}");
         writer.println("}");

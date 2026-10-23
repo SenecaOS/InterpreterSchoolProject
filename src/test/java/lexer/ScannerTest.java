@@ -2,9 +2,7 @@ package lexer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import exceptions.lexer.LexerException;
 import exceptions.lexer.LexerExceptionHandler;
-import interpreter.RuntimeError;
 import org.junit.jupiter.api.Test;
 
 
@@ -45,13 +43,12 @@ public class ScannerTest {
 		try {
 			scanner.scanTokens();
 		}catch (RuntimeException e) {
-			assertEquals("Error at 1 with token type: VALUE\nError at 5 with token type: STRING\n", exceptionHandler.printExceptions());
+			assertEquals("Error at line 1 with token type: VALUE\nError at line 5 with token type: STRING\n", exceptionHandler.printExceptions());
 		}
 	}
 
 	@Test
 	void testNoErrorHandler_ThrowsError(){
-
 		assertThrows(RuntimeException.class, () -> {
 			Scanner scanner = new Scanner("55afwa\n\n\n\n");
 			scanner.scanTokens();
@@ -101,7 +98,7 @@ public class ScannerTest {
 
 
 	@Test
-	void testSEMICOLON() {
+	void testSemicolon() {
 
 		Scanner scanner = new Scanner(";");
 		scanner.scanTokens();
@@ -271,7 +268,7 @@ public class ScannerTest {
 		Scanner scanner = new Scanner("abc (4) ([])-+ \"test\" loop {} <=>=&|/ smth! if ifa >=>< true ===");
 		scanner.scanTokens();
 
-		assertEquals("IDENTIFIER(\"abc\") LEFT_PARENS(\"(\") VALUE(\"4\") RIGHT_PARENS(\")\") LEFT_PARENS(\"(\") LEFT_SQBRACKET(\"[\") RIGHT_SQBRACKET(\"]\") RIGHT_PARENS(\")\") MINUS(\"-\") PLUS(\"+\") STRING(\"\"test\"\") LOOP(\"loop\") LEFT_CURLYBRAC(\"{\") RIGHT_CURLYBRAC(\"}\") LESS_EQUALS(\"<=\") GREATER_EQUALS(\">=\") AND(\"&\") OR(\"|\") SLASH(\"/\") IDENTIFIER(\"smth!\") IF(\"if\") IDENTIFIER(\"ifa\") GREATER_EQUALS(\">=\") GREATER(\">\") LESSER(\"<\") TRUE(\"true\") EQUALS(\"==\") ASSIGNMENT(\"=\") EOF(\"\") ", scanner.toString());
+		assertEquals("IDENTIFIER(\"abc\") LEFT_PARENS(\"(\") VALUE(\"4\") RIGHT_PARENS(\")\") LEFT_PARENS(\"(\") LEFT_SQBRACKET(\"[\") RIGHT_SQBRACKET(\"]\") RIGHT_PARENS(\")\") MINUS(\"-\") PLUS(\"+\") STRING(\"\"test\"\") LOOP(\"loop\") LEFT_CURLYBRAC(\"{\") RIGHT_CURLYBRAC(\"}\") LESS_EQUALS(\"<=\") GREATER_EQUALS(\">=\") AND(\"&\") OR(\"|\") SLASH(\"/\") SMTH(\"smth\") NOT(\"!\") IF(\"if\") IDENTIFIER(\"ifa\") GREATER_EQUALS(\">=\") GREATER(\">\") LESSER(\"<\") TRUE(\"true\") EQUALS(\"==\") ASSIGNMENT(\"=\") EOF(\"\") ", scanner.toString());
 
 
 		//Testing empty input
@@ -355,6 +352,7 @@ public class ScannerTest {
 	}
 
 
+
 	@Test
 	void testValidIdentifierInput() {
 		//Testing most basic path
@@ -393,6 +391,8 @@ public class ScannerTest {
 
 
 	}
+
+
 
 
 	@Test
@@ -473,7 +473,6 @@ public class ScannerTest {
 		Scanner scanner = new Scanner("++6");
 		scanner.scanTokens();
 		assertEquals("PLUS(\"+\") PLUS(\"+\") VALUE(\"6\") EOF(\"\") ", scanner.toString());
-
 		scanner = new Scanner("--6++**");
 		scanner.scanTokens();
 		assertEquals("MINUS(\"-\") MINUS(\"-\") VALUE(\"6\") PLUS(\"+\") PLUS(\"+\") STAR(\"*\") STAR(\"*\") EOF(\"\") ", scanner.toString());

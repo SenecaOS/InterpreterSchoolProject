@@ -12,7 +12,7 @@ public class LexerException extends RuntimeException{
 
     }
     public String toString(){
-        return "Error at " + t.getLine() + " with token type: " + t.getTokenType().toString();
+        return "Error at line " + t.getLine() + " with token type: " + t.getTokenType().toString();
 
     }
 

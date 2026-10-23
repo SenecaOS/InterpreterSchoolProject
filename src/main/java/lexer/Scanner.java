@@ -4,8 +4,6 @@ package lexer;
 import exceptions.lexer.LexerException;
 import exceptions.lexer.LexerExceptionHandler;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -137,46 +135,6 @@ public class Scanner {
 		case '&':
 			addToken(TokenType.AND);
 			break;
-			/*
-		case 'i':
-			if (!isAnumAfterWord("f")  && isNext('f')) {
-				addToken(TokenType.IF);
-				//Reset c to prevent fall through behavior
-				c = '\0';
-			}
-			break;
-		case 'r':
-		case 'n':
-			String word = c == 'r' ? "eturn" : "oth";
-			if (inputMatchesWord(word)) {
-				addToken(c == 'r' ? TokenType.RETURN : TokenType.NOTH);
-				//Reset c to prevent fall through behavior
-				c = '\0';
-			}
-			break;
-		case 't':
-		case 'f':
-			word = c == 't' ? "rue" : "alse";
-			if (inputMatchesWord(word)) {
-				addToken(c == 't' ? TokenType.TRUE : TokenType.FALSE);
-				c = '\0';
-			}
-			break;
-		case 'l':
-		case 's':
-			word = c == 's' ? "mth" : "oop";
-			if (inputMatchesWord(word)) {
-				addToken(c == 's' ? TokenType.SMTH : TokenType.LOOP);
-				c = '\0';
-			}
-			break;
-		case 'e':
-			if (inputMatchesWord("lse")) {
-				addToken(TokenType.ELSE);
-				c = '\0';
-			}
-			break;
-		*/ //FOR WHENEVER WE WANT TO TEST THE ALTERNATIVE APPROACH WITHOUT USING HASHMAP (see commented out method below)
 		case '=':
 			addToken(isNext('=') ? TokenType.EQUALS : TokenType.ASSIGNMENT);
 			break;
@@ -235,26 +193,11 @@ public class Scanner {
 				advance();
 			}
 		}
-
-		String temp = source.substring(start, current);
-		addToken(TokenType.VALUE, Double.parseDouble(source.substring(start, current)));
-		if(!isAcceptableNumEnding(peek()) || peek() == '.'){
+		if(!isAcceptableNumEnding(peek()) || source.charAt(current - 1) == '.'){
 			++current;
 			handleError(new LexerException(new Token(TokenType.VALUE, null, null, nline)));
 		}
-		
-		/*
-		int currChar = source.charAt(current - 1);
-		while (peek() != '\0' && !isBlank(peek())) {
-			currChar = advance();
-			if (!isNum(currChar))
-				break;
-		}
-		// e.g. if 24A is read
-		if (!isNum(currChar) && !isAtEnd()) {
-			throw new IllegalArgumentException("Incorrect value format on line " + nline);
-		}
-		addToken(TokenType.VALUE, Double.parseDouble(source.substring(start, current)));*/
+		else addToken(TokenType.VALUE, Double.parseDouble(source.substring(start, current)));
 	}
 
 	private boolean isAcceptableNumEnding(int c) {

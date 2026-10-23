@@ -1,6 +1,8 @@
 package lexer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import exceptions.lexer.LexerExceptionHandler;
 import org.junit.jupiter.api.Test;
 
 
@@ -269,4 +271,62 @@ assertEquals("interrupt", scanner.getTokens().get(0).getVal());
 
 
 	}
+    @Test
+    void testTokenNLineTest(){
+        Scanner scanner = new Scanner("\n\n\ninterrupt");
+        scanner.scanTokens();
+        assertEquals(4, scanner.getTokens().get(0).getLine());
+        scanner = new Scanner("\n\n\ninterrupt\n\n\n\ntaaaaa");
+        scanner.scanTokens();
+        assertEquals(8, scanner.getTokens().get(1).getLine());
+        scanner = new Scanner("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ntaaaaa");
+        scanner.scanTokens();
+        assertEquals(17, scanner.getTokens().get(0).getLine());
+    }
+
+
+    @Test
+    void testValidTokenNum(){
+     //EC Värden högre än som ryms i double
+        Double temp = 1.7976931348623157E308 * 2;
+        Token token = new Token(TokenType.VALUE, temp.toString(), temp, 1);
+
+        assertEquals(Double.POSITIVE_INFINITY, token.getLiteral());
+
+        //EC Värden lägre än som ryms i double
+
+        temp = -1.7976931348623157E308 * 2;
+        token = new Token(TokenType.VALUE, temp.toString(), temp, 1);
+
+        assertEquals(Double.NEGATIVE_INFINITY, token.getLiteral());
+
+        //EC Nummer med decimalvärde
+        Scanner scanner = new Scanner("1.5");
+        scanner.scanTokens();
+        assertEquals(1.5, scanner.getTokens().get(0).getLiteral());
+        //EC Värdet 0
+        scanner = new Scanner("0");
+        scanner.scanTokens();
+        assertEquals(0.0, scanner.getTokens().get(0).getLiteral());
+        //EC Värde med decimalvärde
+        scanner = new Scanner("1.5");
+        scanner.scanTokens();
+        assertEquals(1.5, scanner.getTokens().get(0).getLiteral());
+
+
+        //från EC värde med semikolon i slutet
+        scanner = new Scanner("25;");
+        scanner.scanTokens();
+        assertEquals(25.0, scanner.getTokens().get(0).getLiteral());
+
+
+        //från EC värde med operator i slutet
+        scanner = new Scanner("25*");
+        scanner.scanTokens();
+        assertEquals(25.0, scanner.getTokens().get(0).getLiteral());
+
+
+
+    }
+
 }

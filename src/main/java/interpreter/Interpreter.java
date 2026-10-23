@@ -53,7 +53,7 @@ public class Interpreter implements Expr.Visitor<Object>{
             Object value = evaluate(expression);
             System.out.println(stringify(value));
         } catch (RuntimeError error) {
-            System.out.println("Error on line " + error.token.getNline() + ". Wrong token type: " + error.token.getTokenType().toString());
+            System.out.println("Error on line " + error.token.getLine() + ". Wrong token type: " + error.token.getTokenType().toString());
 
         }
     }

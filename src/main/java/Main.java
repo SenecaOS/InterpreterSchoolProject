@@ -1,3 +1,6 @@
+import interpreter.Interpreter;
+import lexer.Scanner;
+import lexer.Token;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -5,26 +8,16 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
-import interpreter.Interpreter;
-import lexer.Scanner;
-import lexer.Token;
-import parser.Expr;
-import parser.Parser;
-import parser.Statement;
-import exceptions.parser.ParserExceptionHandler;
-
 public class Main {
 	private static final Interpreter interpreter = new Interpreter();
-	private static boolean hadError;
-
 
 	private static boolean isValidFormat(String arg) {
 		return arg.matches(".*\\.smth$");
 		
 	}
 	
-	private static void runFile(String path) throws IOException {
-		byte[] bytes = Files.readAllBytes(Paths.get(path));
+	private static void runFile() throws IOException {
+		byte[] bytes = Files.readAllBytes(Paths.get("src/main/java/large-file.smth"));
 		run(new String(bytes, Charset.defaultCharset()));
 
 
@@ -58,6 +51,8 @@ public class Main {
 			runFile(args[0]);
 		}*/
 		//runFile("src/main/java/test.smth");
-		runFile("src/main/java/large-file.smth");
+		Double test = Double.MAX_VALUE;
+		System.out.println(test);
+		runFile();
 	}
 }

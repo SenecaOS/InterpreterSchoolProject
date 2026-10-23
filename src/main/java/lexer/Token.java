@@ -27,10 +27,6 @@ public class Token {
 		return literal;
 	}
 
-	public int getNline(){
-		return nline;
-	}
-	
 	public String toString(){
 		return tokenType.toString() + "(\"" + val + "\")";
 	}
