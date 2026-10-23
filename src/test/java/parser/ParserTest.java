@@ -167,7 +167,6 @@ class ParserTest {
     }
 
 
-
     @Test
     void givenValidVariable_ReturnVariableStatement() {
         List<Token> tokens = List.of(createToken(SMTH), createToken(IDENTIFIER, "newVar"), createToken(ASSIGNMENT), valueToken(5.0), terminator(), end());
@@ -236,6 +235,24 @@ class ParserTest {
         Assertions.assertEquals(expected, toPrint(parser.parse()));
     }
 
+    @Test
+    void givenValidIfAndElseIfStatement_ReturnIfStatementWithElseIf() {
+        List<Token> tokens = List.of(createToken(IF), leftParens(), createToken(TRUE), rightParens(), leftCurlybracket(),
+                rightCurlyBracket(), createToken(ELSE), createToken(IF), leftParens(), createToken(TRUE), rightParens(), leftCurlybracket(),
+                rightCurlyBracket()
+                , end()
+                );
+        Parser parser = new Parser(tokens);
+        String expected = """
+                if(true)
+                {
+                }
+                else if(true)
+                {
+                }
+                """;
+        Assertions.assertEquals(expected, toPrint(parser.parse()));
+    }
 
     @Test
     void givenValidIfAndElseStatement_ReturnIfStatementWithElse() {
@@ -447,10 +464,13 @@ class ParserTest {
     }
 
     @Test
-    void givenValidArity3Call_returnCallExpressionWithArity3() {
-        List<Token> tokens = List.of(identifier("bar"), leftParens(), createToken(TRUE), createToken(COMMA), createToken(MINUS, "-"), valueToken(5.0), createToken(COMMA), identifier("foo"), leftParens(), identifier("num"), rightParens(), rightParens(), terminator(), end());
+    void givenValidArity4Call_returnCallExpressionWithArity4() {
+        List<Token> tokens = List.of(identifier("bar"), leftParens(), createToken(TRUE), createToken(COMMA),
+                createToken(MINUS, "-"), valueToken(5.0), createToken(COMMA),
+                identifier("foo"), leftParens(), identifier("num"), rightParens(), createToken(COMMA),
+                leftParens(), valueToken(4.0), rightParens(), rightParens(), terminator(), end());
         Parser parser = new Parser(tokens);
-        String expected = "call: bar([true, (-5.0), call: foo([var: num])])";
+        String expected = "call: bar([true, (-5.0), call: foo([var: num]), (4.0)])";
         List<Statement> statements = parser.parse();
         Assertions.assertEquals(expected, toPrint(statements));
     }
@@ -464,7 +484,7 @@ class ParserTest {
 
     @Test
     void givenInvalidNextArgument_throwError() {
-        List<Token> tokens = List.of(identifier("bar"), leftParens(), createToken(COMMA),valueToken(2.0), rightParens(), terminator(), end());
+        List<Token> tokens = List.of(identifier("bar"), leftParens(), createToken(COMMA), valueToken(2.0), rightParens(), terminator(), end());
         Parser parser = new Parser(tokens);
         Assertions.assertThrows(ParserSyntaxException.class, parser::parse);
     }
@@ -493,7 +513,10 @@ class ParserTest {
         ParserExceptionHandler parserExceptionHandler = new ParserExceptionHandler();
         Parser parser = new Parser(tokens, parserExceptionHandler);
 
-        parser.parse();
+        try {
+            parser.parse();
+        } catch (RuntimeException e) {
+        }
         Assertions.assertTrue(parserExceptionHandler.hasExceptions());
         Assertions.assertEquals("""
                 Expected 'expression' at line 0, but found ';'.

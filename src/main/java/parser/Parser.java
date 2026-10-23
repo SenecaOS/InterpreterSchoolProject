@@ -47,6 +47,11 @@ public class Parser {
             }
         }
 
+        if(parserExceptionHandler != null && parserExceptionHandler.hasExceptions()){
+            System.err.println(parserExceptionHandler.printExceptions());
+            throw new RuntimeException();
+        }
+
         return statements;
     }
 
