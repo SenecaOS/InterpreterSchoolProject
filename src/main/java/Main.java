@@ -34,7 +34,11 @@ public class Main {
 		}
 		ParserExceptionHandler parserExceptionHandler = new ParserExceptionHandler();
 		Parser parser = new Parser(tokens, parserExceptionHandler);
-		List<Statement> statements = parser.parse();
+		try {
+			List<Statement> statements = parser.parse();
+		} catch (RuntimeException e) {
+			return;
+		}
 
 		/*Parser parser = new Parser(tokens);
 		Expr expression = parser.parseTest();
