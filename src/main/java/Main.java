@@ -51,8 +51,7 @@ public class Main {
 			runFile(args[0]);
 		}*/
 		//runFile("src/main/java/test.smth");
-		Double test = Double.MAX_VALUE;
-		System.out.println(test);
+
 		runFile();
 	}
 }
