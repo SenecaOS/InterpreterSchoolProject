@@ -6,13 +6,21 @@ public abstract class Statement {
 
     public interface Visitor<R> {
         R visitExpression(Expression expr);
+
         R visitPrint(Print print);
+
         R visitVariable(Variable variable);
+
         R visitBlock(Block block);
+
         R visitLoop(Loop loop);
+
         R visitIf(If iff);
+
         R visitReturn(Return ret);
+
         R visitFunction(Function function);
+
         R visitInterrupt(Interrupt interrupt);
     }
 
@@ -30,6 +38,14 @@ public abstract class Statement {
         <R> R accept(Visitor<R> visitor) {
             return visitor.visitExpression(this);
         }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof Expression expr) {
+                return this.expression.equals(expr.expression);
+            }
+            return false;
+        }
     }
 
     public static class Print extends Statement {
@@ -43,6 +59,14 @@ public abstract class Statement {
         @Override
         <R> R accept(Visitor<R> visitor) {
             return visitor.visitPrint(this);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof Print print) {
+                return this.expr.equals(print.expr);
+            }
+            return false;
         }
     }
 
@@ -60,6 +84,15 @@ public abstract class Statement {
         <R> R accept(Visitor<R> visitor) {
             return visitor.visitVariable(this);
         }
+
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof Variable variable) {
+                return this.name.equals(variable.name) && this.value.equals(variable.value);
+            }
+            return false;
+        }
     }
 
     public static class Block extends Statement {
@@ -73,6 +106,14 @@ public abstract class Statement {
         @Override
         <R> R accept(Visitor<R> visitor) {
             return visitor.visitBlock(this);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof Block block) {
+                return this.statements.equals(block.statements);
+            }
+            return false;
         }
     }
 
@@ -90,6 +131,14 @@ public abstract class Statement {
         @Override
         <R> R accept(Visitor<R> visitor) {
             return visitor.visitLoop(this);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof Loop loop) {
+                return this.block.equals(loop.block) && this.condition.equals(loop.condition);
+            }
+            return false;
         }
     }
 
@@ -109,6 +158,20 @@ public abstract class Statement {
         <R> R accept(Visitor<R> visitor) {
             return visitor.visitIf(this);
         }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof If iff) {
+                if (this.condition.equals(iff.condition) && this.block.equals(iff.block)) {
+                    if (this.statement == null || iff.statement == null) {
+                        return this.statement == null && iff.statement == null;
+                    } else {
+                        return this.statement.equals(iff.statement);
+                    }
+                }
+            }
+            return false;
+        }
     }
 
     public static class Return extends Statement {
@@ -122,6 +185,14 @@ public abstract class Statement {
         @Override
         <R> R accept(Visitor<R> visitor) {
             return visitor.visitReturn(this);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof Return ret) {
+                return this.value.equals(ret.value);
+            }
+            return false;
         }
     }
 
@@ -141,15 +212,30 @@ public abstract class Statement {
         <R> R accept(Visitor<R> visitor) {
             return visitor.visitFunction(this);
         }
+
+        @Override
+        public boolean equals(Object obj) {
+            if  (obj instanceof Function function) {
+                return this.name.equals(function.name) && this.params.equals(function.params) && this.block.equals(function.block);
+            }
+
+            return false;
+        }
     }
 
     public static class Interrupt extends Statement {
 
-        public Interrupt() {}
+        public Interrupt() {
+        }
 
         @Override
         <R> R accept(Visitor<R> visitor) {
             return visitor.visitInterrupt(this);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return  obj instanceof Interrupt interrupt;
         }
     }
 }

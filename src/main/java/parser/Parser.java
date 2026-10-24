@@ -1,13 +1,12 @@
 package parser;
 
-import lexer.Token;
-import lexer.TokenType;
-import exceptions.parser.ParserExceptionHandler;
 import exceptions.parser.ParserElseException;
 import exceptions.parser.ParserException;
+import exceptions.parser.ParserExceptionHandler;
 import exceptions.parser.ParserSyntaxException;
+import lexer.Token;
+import lexer.TokenType;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,13 +22,12 @@ public class Parser {
     private static final Expr NULL_EXPR = new Expr.Literal(null);
 
     private int depth = 0;
-    private int current = 0;
-    private final List<Token> tokens;
 
+    private final TokenHandler tokenHandler;
     private final ParserExceptionHandler parserExceptionHandler;
 
     public Parser(List<Token> tokens, ParserExceptionHandler parserExceptionHandler) {
-        this.tokens = tokens;
+        this.tokenHandler = new TokenHandler(tokens);
         this.parserExceptionHandler = parserExceptionHandler;
     }
 
@@ -37,24 +35,20 @@ public class Parser {
         this(tokens, null);
     }
 
-    public Expr parseTest(){
-        try{
-            return expression();
-        }catch(Exception error){
-            return null;
-        }
-    }
-
-
     public List<Statement> parse() {
         List<Statement> statements = new ArrayList<>();
 
-        while (!isAtEnd()) {
+        while (!tokenHandler.isAtEnd()) {
             try {
                 statements.add(getNext());
             } catch (ParserException error) {
                 handleError(error);
             }
+        }
+
+        if (parserExceptionHandler != null && parserExceptionHandler.hasExceptions()) {
+            System.err.println(parserExceptionHandler.printExceptions());
+            throw new RuntimeException();
         }
 
         return statements;
@@ -101,7 +95,7 @@ public class Parser {
 
         if (matchAndIncrement(IDENTIFIER)) {
 
-            params.add(prev().getVal());
+            params.add(tokenHandler.prev().getVal());
 
             while (matchAndIncrement(COMMA)) {
                 String paramName = consume(IDENTIFIER, "identifier").getVal();
@@ -169,7 +163,7 @@ public class Parser {
         if (depth >= MAX_DEPTH) throw new IllegalArgumentException("Reached max depth, consider refactoring your code");
         consume(LEFT_CURLYBRAC, "{");
         List<Statement> statements = new ArrayList<>();
-        while (!check(RIGHT_CURLYBRAC) && !isAtEnd()) {
+        while (!check(RIGHT_CURLYBRAC) && !tokenHandler.isAtEnd()) {
             try {
                 statements.add(getNext());
             } catch (ParserException error) {
@@ -208,7 +202,7 @@ public class Parser {
         Expr left = equality();
 
         while (matchAndIncrement(AND, OR)) {
-            Token operator = prev();
+            Token operator = tokenHandler.prev();
             Expr right = equality();
             left = new Expr.Binary(left, operator, right);
         }
@@ -220,7 +214,7 @@ public class Parser {
         Expr left = comparison();
 
         while (matchAndIncrement(NOT_EQUALS, EQUALS)) {
-            Token operator = prev();
+            Token operator = tokenHandler.prev();
             Expr right = comparison();
             left = new Expr.Binary(left, operator, right);
         }
@@ -232,7 +226,7 @@ public class Parser {
         Expr left = term();
 
         while (matchAndIncrement(GREATER, LESSER, GREATER_EQUALS, LESS_EQUALS)) {
-            Token operator = prev();
+            Token operator = tokenHandler.prev();
             Expr right = term();
             left = new Expr.Binary(left, operator, right);
         }
@@ -244,7 +238,7 @@ public class Parser {
         Expr left = factor();
 
         while (matchAndIncrement(PLUS, MINUS)) {
-            Token operator = prev();
+            Token operator = tokenHandler.prev();
             Expr right = factor();
             left = new Expr.Binary(left, operator, right);
         }
@@ -256,7 +250,7 @@ public class Parser {
         Expr left = unary();
 
         while (matchAndIncrement(STAR, SLASH)) {
-            Token operator = prev();
+            Token operator = tokenHandler.prev();
             Expr right = unary();
             left = new Expr.Binary(left, operator, right);
         }
@@ -266,7 +260,7 @@ public class Parser {
 
     private Expr unary() {
         if (matchAndIncrement(NOT, MINUS)) {
-            Token operator = prev();
+            Token operator = tokenHandler.prev();
             Expr expr = unary();
             return new Expr.Unary(operator, expr);
         } else {
@@ -276,7 +270,7 @@ public class Parser {
 
     private Expr primary() {
         if (matchAndIncrement(VALUE, STRING)) {
-            Token token = prev();
+            Token token = tokenHandler.prev();
             return new Expr.Literal(token.getLiteral());
         }
 
@@ -294,11 +288,11 @@ public class Parser {
             return call();
         }
 
-        throw new ParserSyntaxException(peek(), "expression");
+        throw new ParserSyntaxException(tokenHandler.peek(), "expression");
     }
 
     private Expr call() {
-        String name = prev().getVal();
+        String name = tokenHandler.prev().getVal();
 
         if (!check(LEFT_PARENS)) {
             return new Expr.Variable(name);
@@ -321,15 +315,15 @@ public class Parser {
 
     private boolean matchAndIncrement(TokenType... types) {
         if (match(types)) {
-            current++;
+            tokenHandler.increment();
             return true;
         }
         return false;
     }
 
     private boolean match(TokenType... types) {
-        if (isAtEnd()) return false;
-        TokenType needs = peek().getTokenType();
+        if (tokenHandler.isAtEnd()) return false;
+        TokenType needs = tokenHandler.peek().getTokenType();
         for (TokenType type : types) {
             if (type == needs) return true;
         }
@@ -337,36 +331,25 @@ public class Parser {
     }
 
     private boolean check(TokenType type) {
-        if (isAtEnd()) return false;
-        return peek().getTokenType() == type;
+        if (tokenHandler.isAtEnd()) return false;
+        return tokenHandler.peek().getTokenType() == type;
     }
 
-    private boolean isAtEnd() {
-        return peek().getTokenType() == TokenType.EOF;
-    }
-
-    private Token peek() {
-        return tokens.get(current);
-    }
-
-    private Token prev() {
-        return tokens.get(current - 1);
-    }
 
     private Token consume(TokenType type, String expected) {
         if (matchAndIncrement(type)) {
-            return prev();
+            return tokenHandler.prev();
         }
 
-        throw new ParserSyntaxException(peek(), expected);
+        throw new ParserSyntaxException(tokenHandler.peek(), expected);
     }
 
     private void findNextStatement() {
-        while (!isAtEnd() && !match(FUNCTION, SMTH, RETURN, IF, LOOP, PRINT)) {
-            current++;
+        while (!tokenHandler.isAtEnd() && !match(FUNCTION, SMTH, RETURN, IF, LOOP, PRINT)) {
+            tokenHandler.increment();
 
             if (matchAndIncrement(ELSE)) {
-                parserExceptionHandler.addException(new ParserElseException(prev()));
+                parserExceptionHandler.addException(new ParserElseException(tokenHandler.prev()));
             }
         }
     }

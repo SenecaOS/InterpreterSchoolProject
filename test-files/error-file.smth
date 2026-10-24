@@ -1,0 +1,119 @@
+// INTENTIONAL PARSER ERROR TEST
+// Deliberate syntax and lexical mistakes for parser error-recovery profiling.
+// Run separately from the valid corpus; a fail-fast parser may stop at the first error.
+
+smth good0 = 10 ;
+smth good1 = ( 2 + 3 ) * 4 ;
+smth missingValue = ;
+smth good2 = 99 - 12 ;
+smth missingEquals 7 ;
+smth good3 = alpha + beta ;
+smth extraSemicolon = 4 + 5 ; ;
+smth good4 = 20 / 2 ;
+smth missingClose = ( 1 + 2 ;
+smth good5 = 7 * 8 ;
+smth unknownChar = 12 @ 4 ;
+smth good6 = 33 + 44 ;
+smth doubledOperator = 1 + * 2 ;
+smth good7 = 8 >= 3 ;
+smth badComparison = 1 = = 2 ;
+smth good8 = true == false ;
+smth unterminatedString = "hello ;
+smth good9 = noth ;
+
+// Broken conditionals and blocks
+if ( alpha > beta {
+    smth inside0 = 1 + 2 ;
+}
+smth afterBadIf = 3 ;
+if alpha < beta ) {
+    smth inside1 = 5 * 6 ;
+}
+if ( gamma >= delta )
+smth afterMissingBlock = 9 ;
+if ( epsilon != zeta ) {
+    smth inside2 = 7 - ;
+}
+if ( eta < theta ) {
+    smth inside3 = 11 + 12 ;
+    smth strayBrace = 13 ;
+}}
+
+// Broken loops
+loop ( alpha < 100 ) {
+    smth loopGood0 = alpha + 1 ;
+    smth loopMissingSemi = alpha + beta
+}
+loop alpha < 100 ) {
+    smth loopGood1 = 2 + 3 ;
+}
+loop ( beta >= 0 )
+loop ( gamma != delta ) {
+    smth loopBadExpr = ( 1 + ) * 2 ;
+}
+loop ( theta < 10 ) {
+    smth loopBadOperator = 4 ** 3 ;
+}
+
+// Deeply malformed expressions
+smth errDeep0 = ( ( ( 1 + 2 ) * 3 ;
+smth errDeep1 = ! ! ! ;
+smth errDeep2 = 1 < < 2 ;
+smth errDeep3 = ( alpha + beta ) gamma ;
+smth errDeep4 = 10 / / 2 ;
+smth errDeep5 = ( true == ) ;
+smth errDeep6 = - ( - ( - ( 5 ) ) ;
+smth errDeep7 = 1 + 2 3 + 4 ;
+smth errDeep8 = 1 != ! = 2 ;
+smth errDeep9 = ( noth ) ) ;
+
+// Errors mixed with valid statements to test recovery
+smth stress01 = ( alpha / theta ) + ( 38 * 52 ) ;
+smth stress02 = ( epsilon / alpha ) + ( 49 * 35 ) ;
+smth stress03 = ( theta - zeta ) + ( 43 * 31 ) ;
+smth stress04 = ( beta / zeta ) + ( 6 * 20 ) ;
+smth stress05 = ( epsilon * ) * gamma ;
+smth stress06 = ( delta + theta ) + ( 83 * 49 ) ;
+if ( delta == theta ) {
+    smth recover06 = 83 + ;
+}
+smth stress07 = 37 != < 12 ;
+smth stress08 = ( alpha * theta ) + ( 95 * 21 ) ;
+smth stress09 = ( 34 + 7 ;
+smth stress10 = ( theta + ) / eta ;
+smth stress11 = ( zeta + eta ) + ( 41 * 70 ) ;
+smth stress12 = ( gamma + zeta ) + ( 57 * 16 ) ;
+if ( gamma != zeta ) {
+    smth recover12 = 57 + ;
+}
+smth stress13 = ( alpha + beta ) + ( 79 * 88 ) ;
+smth stress14 = 50 >= > 58 ;
+smth stress15 = ( gamma + ) / beta ;
+smth stress16 = ( epsilon - beta ) + ( 84 * 83 ) ;
+smth stress17 = ( beta * zeta ) + ( 22 * 66 ) ;
+smth stress18 = ( 79 + 78 ;
+if ( eta > alpha ) {
+    smth recover18 = 79 + ;
+}
+smth stress19 = ( beta / zeta ) + ( 98 * 48 ) ;
+smth stress20 = ( epsilon + ) + gamma ;
+smth stress21 = 43 < <= 78 ;
+smth stress22 = ( theta / epsilon ) + ( 26 * 40 ) ;
+smth stress23 = ( gamma - alpha ) + ( 52 * 32 ) ;
+smth stress24 = ( alpha - beta ) + ( 17 * 93 ) ;
+if ( alpha > beta ) {
+    smth recover24 = 17 + ;
+}
+smth stress25 = ( alpha * ) * epsilon ;
+smth stress26 = ( eta / gamma ) + ( 29 * 80 ) ;
+smth stress27 = ( 64 + 22 ;
+smth stress28 = 45 != <= 95 ;
+smth stress29 = ( theta * epsilon ) + ( 38 * 13 ) ;
+smth stress30 = ( alpha / ) / delta ;
+if ( alpha < delta ) {
+    smth recover30 = 95 + ;
+}
+
+// End marker: a robust parser should report errors and attempt recovery.
+smth finalValid = ( 123 + 456 ) * 2 ;
+print ( "end" ) ;
