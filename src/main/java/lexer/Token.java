@@ -12,8 +12,8 @@ public class Token {
 		this.tokenType = type;
 		this.nline = nline;
 		this.literal = literal;
-		
 	}
+
 	public TokenType getTokenType() {
 		return tokenType;
 	}
@@ -27,10 +27,6 @@ public class Token {
 		return literal;
 	}
 
-	public int getNline(){
-		return nline;
-	}
-	
 	public String toString(){
 		return tokenType.toString() + "(\"" + val + "\")";
 	}
