@@ -25,11 +25,14 @@ public class Parser {
     private int current = 0;
     private final List<Token> tokens;
 
+    private Token currentToken, prevToken;
+
     private final ParserExceptionHandler parserExceptionHandler;
 
     public Parser(List<Token> tokens, ParserExceptionHandler parserExceptionHandler) {
         this.tokens = tokens;
         this.parserExceptionHandler = parserExceptionHandler;
+        currentToken = tokens.get(0);
     }
 
     public Parser(List<Token> tokens) {
@@ -316,7 +319,7 @@ public class Parser {
 
     private boolean matchAndIncrement(TokenType... types) {
         if (match(types)) {
-            current++;
+            increment();
             return true;
         }
         return false;
@@ -341,11 +344,18 @@ public class Parser {
     }
 
     private Token peek() {
-        return tokens.get(current);
+        return currentToken;
     }
 
     private Token prev() {
-        return tokens.get(current - 1);
+        return prevToken;
+    }
+
+
+    private void increment() {
+        prevToken = currentToken;
+        current++;
+        currentToken = tokens.get(current);
     }
 
     private Token consume(TokenType type, String expected) {
@@ -358,7 +368,7 @@ public class Parser {
 
     private void findNextStatement() {
         while (!isAtEnd() && !match(FUNCTION, SMTH, RETURN, IF, LOOP, PRINT)) {
-            current++;
+            increment();
 
             if (matchAndIncrement(ELSE)) {
                 parserExceptionHandler.addException(new ParserElseException(prev()));
