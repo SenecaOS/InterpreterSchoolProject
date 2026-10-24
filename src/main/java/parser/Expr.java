@@ -4,14 +4,19 @@ import lexer.Token;
 
 import java.util.List;
 
-public abstract class Expr  {
+public abstract class Expr {
 
     public interface Visitor<R> {
         R visitBinary(Binary expr);
+
         R visitLiteral(Literal expr);
+
         R visitUnary(Unary expr);
+
         R visitGrouping(Grouping expr);
+
         R visitCall(Call expr);
+
         R visitVariable(Variable expr);
     }
 
@@ -33,6 +38,14 @@ public abstract class Expr  {
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visitBinary(this);
         }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof Binary binary) {
+                return binary.left.equals(left) && binary.operator.getTokenType() == this.operator.getTokenType() && binary.right.equals(right);
+            }
+            return false;
+        }
     }
 
     public static class Literal extends Expr {
@@ -46,6 +59,14 @@ public abstract class Expr  {
         @Override
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visitLiteral(this);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof Literal literal) {
+                return literal.value.equals(value);
+            }
+            return false;
         }
     }
 
@@ -63,6 +84,14 @@ public abstract class Expr  {
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visitUnary(this);
         }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof Unary unary) {
+                return unary.expr.equals(this.expr) && unary.operator.getTokenType() == this.operator.getTokenType();
+            }
+            return false;
+        }
     }
 
     public static class Grouping extends Expr {
@@ -77,12 +106,22 @@ public abstract class Expr  {
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visitGrouping(this);
         }
+
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof Grouping grouping) {
+                return grouping.expr.equals(this.expr);
+            }
+            return false;
+        }
     }
 
     public static class Call extends Expr {
 
         final String name;
         final List<Expr> args;
+
         Call(String name, List<Expr> args) {
             this.name = name;
             this.args = args;
@@ -91,6 +130,14 @@ public abstract class Expr  {
         @Override
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visitCall(this);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof Call call) {
+                return (name.equals(call.name) && this.args.equals(call.args));
+            }
+            return false;
         }
     }
 
@@ -105,6 +152,14 @@ public abstract class Expr  {
         @Override
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visitVariable(this);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof Variable variable) {
+                return variable.name.equals(this.name);
+            }
+            return false;
         }
     }
 

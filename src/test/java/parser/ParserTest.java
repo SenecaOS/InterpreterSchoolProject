@@ -73,6 +73,34 @@ class ParserTest {
         return new Token(SEMICOLON, ";", null, 0);
     }
 
+    Statement printStatement(String string) {
+        return new Statement.Print(new Expr.Literal(string));
+    }
+
+    Statement expression(Expr expr) {
+        return new Statement.Expression(expr);
+    }
+
+    Expr literal(Object val) {
+        return new Expr.Literal(val);
+    }
+
+    Expr binary(double left, TokenType operator, double right) {
+        return new Expr.Binary(literal(left), createToken(operator), literal(right));
+    }
+
+    Expr binary(Expr left, TokenType operator, Expr right) {
+        return new Expr.Binary(left, createToken(operator), right);
+    }
+
+    Expr grouping(Expr expr) {
+        return new Expr.Grouping(expr);
+    }
+
+    Expr unary(TokenType operator, Expr expr) {
+        return new Expr.Unary(createToken(operator), expr);
+    }
+
     private int getArity(Statement statement) {
         if (statement instanceof Statement.Function function) {
             return function.params.size();
@@ -87,7 +115,7 @@ class ParserTest {
 
         Parser parser = new Parser(tokens);
         List<Statement> statements = parser.parse();
-        Assertions.assertEquals(1, statements.size());
+        Assertions.assertEquals(statements, List.of(printStatement("Hello world")));
     }
 
     @Test
@@ -102,7 +130,7 @@ class ParserTest {
         List<Token> tokens = List.of(valueToken(2.0), createToken(PLUS, "+"), valueToken(3.0), createToken(MINUS, "-"), valueToken(4.0), terminator(), end());
         Parser parser = new Parser(tokens);
         List<Statement> statements = parser.parse();
-        Assertions.assertEquals("((2.0 + 3.0) - 4.0)", toPrint(statements));
+        Assertions.assertEquals(statements, List.of(expression(binary(binary(2.0, PLUS, 3.0), MINUS, literal(4.0)))));
     }
 
     @Test
@@ -110,7 +138,7 @@ class ParserTest {
         List<Token> tokens = List.of(valueToken(3.0), createToken(PLUS, "+"), valueToken(5.0), createToken(STAR, "*"), valueToken(6.0), terminator(), end());
         Parser parser = new Parser(tokens);
         List<Statement> statements = parser.parse();
-        Assertions.assertEquals("(3.0 + (5.0 * 6.0))", toPrint(statements));
+        Assertions.assertEquals(statements, List.of(expression(binary(literal(3.0), PLUS, binary(5.0, STAR, 6.0)))));
     }
 
     @Test
@@ -118,7 +146,7 @@ class ParserTest {
         List<Token> tokens = List.of(valueToken(2.0), createToken(SLASH, "/"), leftParens(), createToken(MINUS, "-"), valueToken(3.0), createToken(PLUS, "+"), valueToken(2.0), rightParens(), terminator(), end());
         Parser parser = new Parser(tokens);
         List<Statement> statements = parser.parse();
-        Assertions.assertEquals("(2.0 / (((-3.0) + 2.0)))", toPrint(statements));
+        Assertions.assertEquals(statements, List.of(expression(binary(literal(2.0), SLASH, grouping(binary(unary(MINUS, literal(3.0)), PLUS, literal(2.0)))))));
     }
 
     @Test
@@ -126,7 +154,7 @@ class ParserTest {
         List<Token> tokens = List.of(valueToken(3.0), createToken(PLUS, "+"), stringToken("string"), terminator(), end());
         Parser parser = new Parser(tokens);
         List<Statement> statements = parser.parse();
-        Assertions.assertEquals("(3.0 + string)", toPrint(statements));
+        Assertions.assertEquals(statements, List.of(expression(binary(literal(3.0), PLUS, literal("string")))));
     }
 
     @Test
@@ -134,7 +162,7 @@ class ParserTest {
         List<Token> tokens = List.of(valueToken(2.0), createToken(NOT_EQUALS, "!="), valueToken(3.0), terminator(), end());
         Parser parser = new Parser(tokens);
         List<Statement> statements = parser.parse();
-        Assertions.assertEquals("(2.0 != 3.0)", toPrint(statements));
+        Assertions.assertEquals(statements, List.of(expression(binary(2.0, NOT_EQUALS, 3.0))));
     }
 
     @Test
@@ -171,7 +199,8 @@ class ParserTest {
     void givenValidVariable_ReturnVariableStatement() {
         List<Token> tokens = List.of(createToken(SMTH), createToken(IDENTIFIER, "newVar"), createToken(ASSIGNMENT), valueToken(5.0), terminator(), end());
         Parser parser = new Parser(tokens);
-        Assertions.assertEquals("newVar = 5.0", toPrint(parser.parse()));
+        List<Statement> statements = parser.parse();
+        Assertions.assertEquals(statements, List.of(new Statement.Variable("newVar", literal(5.0))));
     }
 
     @Test
@@ -241,7 +270,7 @@ class ParserTest {
                 rightCurlyBracket(), createToken(ELSE), createToken(IF), leftParens(), createToken(TRUE), rightParens(), leftCurlybracket(),
                 rightCurlyBracket()
                 , end()
-                );
+        );
         Parser parser = new Parser(tokens);
         String expected = """
                 if(true)
