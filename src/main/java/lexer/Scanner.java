@@ -4,6 +4,7 @@ package lexer;
 import exceptions.lexer.LexerException;
 import exceptions.lexer.LexerExceptionHandler;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -209,7 +210,8 @@ public class Scanner {
 	}
 
 	private void lexString() {
-		while (!isAtEnd() && peek() != '"') {
+
+		while (!isAtEnd() && peek() != '"' ) {
 			if (peek() == '\n')
 				++nline;
 			advance();
@@ -228,12 +230,21 @@ public class Scanner {
 		addToken(TokenType.STRING, source.substring(start + 1, current - 1));
 	}
 
-
 	private void lexIdentifier() {
 
 		while (!isAtEnd() && isAnum(peek())) {
 			advance();
 		}
+		char c;
+		if(!isAcceptableIdEnding()){
+			while (!isAtEnd() && !isBlank((c = peek())) && !isValidDelimiter(c)) {
+				if(c == '\n') ++nline;
+				advance();
+			}
+			handleError(new LexerException(new Token(TokenType.IDENTIFIER, null, null, nline)));
+			return;
+		}
+
         TokenType type = null;
         if((type = reservedWords.get(source.substring(start, current))) != null) {
         	addToken(type, source.substring(start, current));
@@ -241,6 +252,21 @@ public class Scanner {
         }
         addToken(TokenType.IDENTIFIER, source.substring(start, current));
     }
+
+	private boolean isValidDelimiter(char c) {
+		return c == ';' || c == ')' || c == ',' || c == '+' || c == '=';
+	}
+
+	private boolean isAcceptableIdEnding() {
+		if(isAtEnd()) return true;
+		char c = peek();
+		ArrayList<Character> invalidAfterIdentifier = new ArrayList<>(Arrays.asList(
+				'@', '#', '$', '^', '!',
+				'~', '`', '{', ':', '\'', '"', '.',
+				'\\'
+		));
+		return Character.isWhitespace(c) || (!invalidAfterIdentifier.contains(c) && c <= 127);
+	}
 
 	private boolean isAnum(int c) {
 		return isNum(c) || isAlpha(c);

@@ -319,9 +319,6 @@ assertEquals("interrupt", scanner.getTokens().get(0).getVal());
         scanner = new Scanner("25*");
         scanner.scanTokens();
         assertEquals(25.0, scanner.getTokens().get(0).getLiteral());
-
-
-
     }
 
 }
