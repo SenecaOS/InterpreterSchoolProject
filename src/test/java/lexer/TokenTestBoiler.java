@@ -3,14 +3,13 @@ package lexer;
 
 //DONT RUN AS IT WILL RESET THE TokenTest CLASS
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
 
 public class TokenTestBoiler {
 
-    static String[] testInputs = {
+    private static final String[] testInputs = {
             "loop",
             "if",
             "variable",
@@ -67,9 +66,6 @@ public class TokenTestBoiler {
             writer.println( "type = TokenType." + t + ";");
             writer.println("assertEquals(type, scanner.getTokens().get(0).getTokenType());");
             writer.println("assertEquals(\"" + testInputs[index++] +"\", scanner.getTokens().get(0).getVal());\n\n");
-
-
-
         }
         writer.println("\t}");
         writer.println("}");

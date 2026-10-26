@@ -9,7 +9,6 @@ import java.nio.file.Paths;
 import java.util.List;
 
 public class Main {
-	private static final Interpreter interpreter = new Interpreter();
 
 	private static boolean isValidFormat(String arg) {
 		return arg.matches(".*\\.smth$");

@@ -2,8 +2,6 @@ package exceptions.lexer;
 
 import lexer.Token;
 
-import java.util.ArrayList;
-
 public class LexerException extends RuntimeException{
     private final Token t;
 

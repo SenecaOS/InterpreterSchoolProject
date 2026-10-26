@@ -15,7 +15,7 @@ public class Scanner {
 	private int current = 0;
 	private int nline = 1;
 	private static final HashMap<String, TokenType> reservedWords;
-	LexerExceptionHandler exceptionHandler;
+	private LexerExceptionHandler exceptionHandler;
 	
 	
 	static {
@@ -36,7 +36,6 @@ public class Scanner {
 
 	public Scanner(String source) {
 		this.source = source;
-
 	}
 
 	public Scanner(String source, LexerExceptionHandler exceptionHandler){
@@ -163,7 +162,7 @@ public class Scanner {
 		}
 	}
 
-	boolean isNext(char c) {
+	private boolean isNext(char c) {
 
 		if (isAtEnd())
 			return false;
@@ -189,10 +188,9 @@ public class Scanner {
 			advance();
 		}
 		if(peek() == '.'){
-			advance();
-			while (!isAtEnd() && isNum(peek())) {
+			do{
 				advance();
-			}
+			}while (!isAtEnd() && isNum(peek()));
 		}
 		if(!isAcceptableNumEnding(peek()) || source.charAt(current - 1) == '.'){
 			++current;
@@ -238,14 +236,13 @@ public class Scanner {
 		char c;
 		if(!isAcceptableIdEnding()){
 			while (!isAtEnd() && !isBlank((c = peek())) && !isValidDelimiter(c)) {
-				if(c == '\n') ++nline;
 				advance();
 			}
 			handleError(new LexerException(new Token(TokenType.IDENTIFIER, null, null, nline)));
 			return;
 		}
 
-        TokenType type = null;
+        TokenType type;
         if((type = reservedWords.get(source.substring(start, current))) != null) {
         	addToken(type, source.substring(start, current));
         	return;
@@ -254,7 +251,7 @@ public class Scanner {
     }
 
 	private boolean isValidDelimiter(char c) {
-		return c == ';' || c == ')' || c == ',' || c == '+' || c == '=';
+		return c == ';' || c == ')' || c == ',' || c == '+' || c == '=' || c == '\n';
 	}
 
 	private boolean isAcceptableIdEnding() {
@@ -306,7 +303,7 @@ public class Scanner {
 		return sb.toString();
 	}
 
-	public void handleError(LexerException error){
+	private void handleError(LexerException error){
 		if(exceptionHandler != null){
 			exceptionHandler.addException(error);
 		}

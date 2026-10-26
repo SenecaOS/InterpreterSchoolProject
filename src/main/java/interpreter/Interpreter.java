@@ -1,7 +1,6 @@
 package interpreter;
 
 import lexer.Token;
-import lexer.TokenType;
 import parser.Expr;
 
 public class Interpreter implements Expr.Visitor<Object>{

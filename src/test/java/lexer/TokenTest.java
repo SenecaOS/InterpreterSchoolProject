@@ -1,12 +1,9 @@
 package lexer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import exceptions.lexer.LexerExceptionHandler;
 import org.junit.jupiter.api.Test;
 
 
-public class TokenTest{;
+public class TokenTest{
 
 
  @Test
