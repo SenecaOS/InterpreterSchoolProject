@@ -46,5 +46,6 @@ public enum TokenType {
     COMMA,
     PRINT,
     FUNCTION,
-    INTERRUPT
+    INTERRUPT,
+    UNKNOWN
 }

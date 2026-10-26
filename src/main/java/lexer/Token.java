@@ -2,10 +2,10 @@ package lexer;
 
 public class Token {
 	
-	private TokenType tokenType;
-	private String val;
-	private int nline;
-	private Object literal;
+	final private TokenType tokenType;
+	final private String val;
+	final private int nline;
+	final private Object literal;
 	
 	public Token(TokenType type, String val, Object literal, int nline) {
 		this.val = val;

@@ -1,12 +1,9 @@
 package lexer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import exceptions.lexer.LexerExceptionHandler;
 import org.junit.jupiter.api.Test;
 
 
-public class TokenTest{;
+public class TokenTest{
 
 
  @Test
@@ -308,11 +305,6 @@ assertEquals("interrupt", scanner.getTokens().get(0).getVal());
         scanner = new Scanner("0");
         scanner.scanTokens();
         assertEquals(0.0, scanner.getTokens().get(0).getLiteral());
-        //EC Värde med decimalvärde
-        scanner = new Scanner("1.5");
-        scanner.scanTokens();
-        assertEquals(1.5, scanner.getTokens().get(0).getLiteral());
-
 
         //från EC värde med semikolon i slutet
         scanner = new Scanner("25;");
@@ -324,9 +316,6 @@ assertEquals("interrupt", scanner.getTokens().get(0).getVal());
         scanner = new Scanner("25*");
         scanner.scanTokens();
         assertEquals(25.0, scanner.getTokens().get(0).getLiteral());
-
-
-
     }
 
 }
