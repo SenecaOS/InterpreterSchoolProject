@@ -12,7 +12,7 @@ public class AstPrinter implements Expr.Visitor<String>, Statement.Visitor<Strin
         return statement.accept(this);
     }
 
-    private String toPrintableList(List<Expr> exprs) {
+    public String toPrintableList(List<Expr> exprs) {
         StringBuilder sb = new StringBuilder();
         sb.append("[");
         for (int i = 0; i < exprs.size(); i++) {
