@@ -42,7 +42,6 @@ class TokenHandlerTest {
         TokenHandler tokenHandler = new TokenHandler(tokens);
         for (int i = 0; i < tokens.size() - 1; i++) {
             tokenHandler.increment();
-            System.out.println(tokenHandler.peek().getTokenType());
         }
         assertThrows(IndexOutOfBoundsException.class, tokenHandler::increment);
     }
