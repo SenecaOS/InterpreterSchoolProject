@@ -22,6 +22,11 @@ public abstract class Expr {
 
     public abstract <R> R accept(Visitor<R> visitor);
 
+    @Override
+    public String toString() {
+        return this.accept(AstPrinter.INSTANCE);
+    }
+
     public static class Binary extends Expr {
 
         public final Expr left;
@@ -64,6 +69,9 @@ public abstract class Expr {
         @Override
         public boolean equals(Object obj) {
             if (obj instanceof Literal literal) {
+                if (literal.value == null || this.value == null) {
+                    return literal.value == null && this.value == null;
+                }
                 return literal.value.equals(value);
             }
             return false;
@@ -88,7 +96,7 @@ public abstract class Expr {
         @Override
         public boolean equals(Object obj) {
             if (obj instanceof Unary unary) {
-                return unary.expr.equals(this.expr) && unary.operator.getTokenType() == this.operator.getTokenType();
+                return unary.expr.equals(this.expr);
             }
             return false;
         }

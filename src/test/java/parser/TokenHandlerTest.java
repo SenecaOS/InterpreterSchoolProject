@@ -29,6 +29,14 @@ class TokenHandlerTest {
     }
 
     @Test
+    void whenIncrementing_incrementAndSetPrevToken() {
+        List<Token> tokens = getTokens();
+        TokenHandler tokenHandler = new TokenHandler(tokens);
+        tokenHandler.increment();
+        Assertions.assertEquals(PLUS, tokenHandler.prev().getTokenType());
+    }
+
+    @Test
     void whenIncrementingTooFar_throwError() {
         List<Token> tokens = getTokens();
         TokenHandler tokenHandler = new TokenHandler(tokens);
@@ -37,6 +45,32 @@ class TokenHandlerTest {
             System.out.println(tokenHandler.peek().getTokenType());
         }
         assertThrows(IndexOutOfBoundsException.class, tokenHandler::increment);
-
     }
+
+    @Test
+    void givenNullList_throwError() {
+        List<Token> tokens = null;
+        assertThrows(IllegalArgumentException.class, () -> new TokenHandler(tokens));
+    }
+
+    @Test
+    void whenAtEnd_returnIsAtEnd() {
+        List<Token> tokens = getTokens();
+        TokenHandler tokenHandler = new TokenHandler(tokens);
+        for (int i = 0; i < tokens.size() - 1; i++) {
+            tokenHandler.increment();
+        }
+        Assertions.assertTrue(tokenHandler.isAtEnd());
+    }
+
+    @Test
+    void whenNotAtEnd_returnFalse() {
+        List<Token> tokens = getTokens();
+        TokenHandler tokenHandler = new TokenHandler(tokens);
+        for (int i = 0; i < tokens.size() - 3; i++) {
+            tokenHandler.increment();
+        }
+        Assertions.assertFalse(tokenHandler.isAtEnd());
+    }
+
 }

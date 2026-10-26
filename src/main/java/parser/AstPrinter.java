@@ -4,6 +4,10 @@ import java.util.List;
 
 public class AstPrinter implements Expr.Visitor<String>, Statement.Visitor<String> {
 
+    public static final AstPrinter INSTANCE = new AstPrinter();
+
+    private AstPrinter() {}
+
     public String print(Statement statement) {
         return statement.accept(this);
     }

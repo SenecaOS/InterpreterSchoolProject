@@ -26,6 +26,11 @@ public abstract class Statement {
 
     abstract <R> R accept(Visitor<R> visitor);
 
+    @Override
+    public String toString() {
+        return this.accept(AstPrinter.INSTANCE);
+    }
+
     public static class Expression extends Statement {
 
         final Expr expression;
@@ -190,6 +195,9 @@ public abstract class Statement {
         @Override
         public boolean equals(Object obj) {
             if (obj instanceof Return ret) {
+                if (ret.value == null || this.value == null) {
+                    return ret.value == null && this.value == null;
+                }
                 return this.value.equals(ret.value);
             }
             return false;
@@ -235,7 +243,7 @@ public abstract class Statement {
 
         @Override
         public boolean equals(Object obj) {
-            return  obj instanceof Interrupt interrupt;
+            return  obj instanceof Interrupt;
         }
     }
 }
