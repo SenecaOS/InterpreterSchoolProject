@@ -76,6 +76,7 @@ public class Scanner {
 	}
 
 	private void scanToken() {
+		boolean notKnown = false;
 		char c = advance();
 		switch (c) {
 		case ' ':
@@ -150,16 +151,23 @@ public class Scanner {
 		case '\n':
 			++nline;
 			break;
-
+			default:
+				notKnown = true;
 		}
 
 		if (isAlpha(c)) {
 			lexIdentifier();
+			notKnown = false;
 		}
 
 		else if (isNum(c)) {
 			lexNum();
+			notKnown = false;
 		}
+		if(notKnown){
+				handleError(new LexerException(new Token(TokenType.UNKNOWN, null, null, nline)));
+		}
+
 	}
 
 	private boolean isNext(char c) {

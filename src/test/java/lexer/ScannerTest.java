@@ -650,7 +650,58 @@ public class ScannerTest {
 		scanner.scanTokens();
 		assertEquals("MINUS(\"-\") MINUS(\"-\") VALUE(\"6\") ASSIGNMENT(\"=\") EOF(\"\") ", scanner.toString());
 
+	}
 
+	@Test
+	void testUnknownToken(){
+
+		LexerExceptionHandler exceptionHandler = new LexerExceptionHandler();
+		Scanner scanner = new Scanner("if@", exceptionHandler);
+		try {
+			scanner.scanTokens();
+		}catch(RuntimeException ignored) {}
+		assertTrue(exceptionHandler.hasExceptions());
+
+		exceptionHandler = new LexerExceptionHandler();
+		scanner = new Scanner("@", exceptionHandler);
+		try {
+			scanner.scanTokens();
+		}catch(RuntimeException ignored) {}
+		assertTrue(exceptionHandler.hasExceptions());
+
+
+		exceptionHandler = new LexerExceptionHandler();
+		scanner = new Scanner("@", exceptionHandler);
+		try {
+			scanner.scanTokens();
+		}catch(RuntimeException ignored) {}
+		assertTrue(exceptionHandler.hasExceptions());
+
+		exceptionHandler = new LexerExceptionHandler();
+		scanner = new Scanner("!@", exceptionHandler);
+		try {
+			scanner.scanTokens();
+		}catch(RuntimeException ignored) {}
+		assertTrue(exceptionHandler.hasExceptions());
+	}
+	@Test
+	void testReserved(){
+		LexerExceptionHandler exceptionHandler = new LexerExceptionHandler();
+		Scanner scanner = new Scanner("true@", exceptionHandler);
+		try {
+			scanner.scanTokens();
+		}catch(RuntimeException ignored) {}
+		assertTrue(exceptionHandler.hasExceptions());
+
+		scanner = new Scanner("truE");
+		scanner.scanTokens();
+		assertEquals("IDENTIFIER(\"truE\") EOF(\"\") ", scanner.toString());
+
+		scanner = new Scanner("true;");
+		scanner.scanTokens();
+		assertEquals("IDENTIFIER(\"truE\") EOF(\"\") ", scanner.toString());
 
 	}
+
+
 }

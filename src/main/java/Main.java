@@ -1,6 +1,8 @@
+import exceptions.parser.ParserExceptionHandler;
 import interpreter.Interpreter;
 import lexer.Scanner;
 import lexer.Token;
+import parser.Parser;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -18,27 +20,14 @@ public class Main {
 	private static void runFile() throws IOException {
 		byte[] bytes = Files.readAllBytes(Paths.get("src/file.smth"));
 		run(new String(bytes, Charset.defaultCharset()));
-
-
 	}
 		
 
-	
-	
 	private static void run(String source) {
 		Scanner scanner = new Scanner(source);
 		List<Token> tokens = scanner.scanTokens();
-		/*
 		ParserExceptionHandler parserExceptionHandler = new ParserExceptionHandler();
 		Parser parser = new Parser(tokens, parserExceptionHandler);
-		List<Statement> statements = parser.parse();
-		if (parserExceptionHandler.hasExceptions()) {
-			System.out.println(parserExceptionHandler);
-			return;
-		}
-		parser = new Parser(tokens);
-		Expr expression = parser.parseTest();
-		interpreter.interpret(expression);*/
 	}
 
 	public static void main(String [] args) throws IOException {
@@ -46,11 +35,6 @@ public class Main {
 			System.out.println("No arguments passed in, program will now exit");
 			return;
 		}
-		/*if (isValidFormat(args[0])) {
-			runFile(args[0]);
-		}*/
-		//runFile("src/main/java/test.smth");
-
-		runFile();
+		else if(isValidFormat(args[0])) runFile();
 	}
 }
