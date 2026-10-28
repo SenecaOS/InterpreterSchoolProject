@@ -81,7 +81,7 @@ public class Parser {
         }
 
         if (matchAndIncrement(INTERRUPT)) {
-            return InterruptStatement();
+            return interruptStatement();
         }
 
         return expressionStatement();
@@ -163,7 +163,7 @@ public class Parser {
         if (depth >= MAX_DEPTH) throw new IllegalArgumentException("Reached max depth, consider refactoring your code");
         consume(LEFT_CURLYBRAC, "{");
         List<Statement> statements = new ArrayList<>();
-        while (!check(RIGHT_CURLYBRAC) && !tokenHandler.isAtEnd()) {
+        while (isNotTokenType(RIGHT_CURLYBRAC) && !tokenHandler.isAtEnd()) {
             try {
                 statements.add(getNext());
             } catch (ParserException error) {
@@ -183,7 +183,7 @@ public class Parser {
         return new Statement.Print(expression);
     }
 
-    private Statement.Interrupt InterruptStatement() {
+    private Statement.Interrupt interruptStatement() {
         consume(SEMICOLON, ";");
         return new Statement.Interrupt();
     }
@@ -294,14 +294,14 @@ public class Parser {
     private Expr call() {
         String name = tokenHandler.prev().getVal();
 
-        if (!check(LEFT_PARENS)) {
+        if (isNotTokenType(LEFT_PARENS)) {
             return new Expr.Variable(name);
         }
 
         List<Expr> arguments = new ArrayList<>();
         consume(LEFT_PARENS, "(");
 
-        if (!check(RIGHT_PARENS)) {
+        if (isNotTokenType(RIGHT_PARENS)) {
 
             do {
                 arguments.add(expression());
@@ -330,9 +330,9 @@ public class Parser {
         return false;
     }
 
-    private boolean check(TokenType type) {
-        if (tokenHandler.isAtEnd()) return false;
-        return tokenHandler.peek().getTokenType() == type;
+    private boolean isNotTokenType(TokenType type) {
+        if (tokenHandler.isAtEnd()) return true;
+        return tokenHandler.peek().getTokenType() != type;
     }
 
 

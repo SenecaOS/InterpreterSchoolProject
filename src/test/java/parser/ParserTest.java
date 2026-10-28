@@ -542,7 +542,83 @@ class ParserTest {
         List<Token> tokens = List.of(createToken(INTERRUPT), terminator(), end());
         Parser parser = new Parser(tokens);
         List<Statement> statements = parser.parse();
-        Assertions.assertEquals(statements, List.of(new Statement.Interrupt()));
+        List<Statement> expected = List.of(new Statement.Interrupt());
+        Assertions.assertEquals(expected, statements);
     }
 
+    @Test
+    void givenIfWithElseAndPrintAndReturn_returnValidList() {
+        List<Token> tokens = List.of(
+                createToken(IF), leftParens(), createToken(TRUE), rightParens(),
+                leftCurlyBracket(), rightCurlyBracket(), createToken(ELSE),
+                leftCurlyBracket(), rightCurlyBracket(),
+                print(), leftParens(), stringToken("test"), rightParens(), terminator(),
+                createToken(RETURN), terminator(), end());
+
+        Parser parser = new Parser(tokens);
+        List<Statement> statements = parser.parse();
+        List<Statement> expected = List.of(
+                new Statement.If(literal(true), new Statement.Block(List.of()), new Statement.Block(List.of())),
+                printStatement("test"),
+                new Statement.Return(null)
+        );
+        Assertions.assertEquals(expected, statements);
+    }
+
+    @Test
+    void givenIfWithIfElseAndReturnWithValue_returnValidList() {
+        List<Token> tokens = List.of(
+                createToken(IF), leftParens(), createToken(TRUE), rightParens(),
+                leftCurlyBracket(), rightCurlyBracket(), createToken(ELSE),
+                createToken(IF), leftParens(), createToken(TRUE), rightParens(),
+                leftCurlyBracket(), rightCurlyBracket(),
+                createToken(RETURN), stringToken("Hello world"), terminator(), end());
+
+        Parser parser = new Parser(tokens);
+        List<Statement> statements = parser.parse();
+        List<Statement> expected = List.of(
+                new Statement.If(literal(true), new Statement.Block(List.of()),
+                        new Statement.If(literal(true), new Statement.Block(List.of()), null)),
+                new Statement.Return(literal("Hello world"))
+        );
+        Assertions.assertEquals(expected, statements);
+    }
+
+    @Test
+    void givenLoopVariableAnd0ArityFunction_returnValidList() {
+        List<Token> tokens = List.of(
+                createToken(LOOP), leftParens(), createToken(TRUE), rightParens(),
+                leftCurlyBracket(), rightCurlyBracket(),
+                createToken(SMTH), identifier("str"), createToken(ASSIGNMENT), stringToken("Value"), terminator(),
+                createToken(FUNCTION), identifier("foo"), leftParens(), rightParens(),
+                leftCurlyBracket(), rightCurlyBracket(), end()
+        );
+
+        Parser parser = new Parser(tokens);
+        List<Statement> statements = parser.parse();
+        List<Statement> expected = List.of(
+                new Statement.Loop(new Statement.Block(List.of()), literal(true)),
+                new Statement.Variable("str", literal("Value")),
+                new Statement.Function("foo", new Statement.Block(List.of()), List.of())
+        );
+        Assertions.assertEquals(expected, statements);
+    }
+
+    @Test
+    void givenArity2FunctionAndInterrupt_returnValidList() {
+        List<Token> tokens = List.of(
+                createToken(FUNCTION), identifier("foo"), leftParens(),
+                identifier("val1"), createToken(COMMA), identifier("val2"),
+                rightParens(), leftCurlyBracket(), rightCurlyBracket(),
+                createToken(INTERRUPT), terminator(), end()
+        );
+
+        Parser parser = new Parser(tokens);
+        List<Statement> statements = parser.parse();
+        List<Statement> expected = List.of(
+                new Statement.Function("foo", new Statement.Block(List.of()), List.of("val1", "val2")),
+                new Statement.Interrupt()
+        );
+        Assertions.assertEquals(expected, statements);
+    }
 }
