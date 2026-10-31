@@ -11,697 +11,740 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ScannerTest {
 
 
-	@Test
-	void testNothKeyword() {
+    @Test
+    void testNothKeyword() {
 
-		Scanner scanner = new Scanner("noth");
-		scanner.scanTokens();
-		assertEquals("NOTH(\"noth\") EOF(\"\") ", scanner.toString());
+        Scanner scanner = new Scanner("noth");
+        scanner.scanTokens();
+        assertEquals("NOTH(\"noth\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("noth;");
-		scanner.scanTokens();
-		assertEquals("NOTH(\"noth\") SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("noth;");
+        scanner.scanTokens();
+        assertEquals("NOTH(\"noth\") SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("notha;");
-		scanner.scanTokens();
-		assertEquals("IDENTIFIER(\"notha\") SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("notha;");
+        scanner.scanTokens();
+        assertEquals("IDENTIFIER(\"notha\") SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
 
 
-		scanner = new Scanner("noth\t");
-		scanner.scanTokens();
-		assertEquals("NOTH(\"noth\") EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("noth\t");
+        scanner.scanTokens();
+        assertEquals("NOTH(\"noth\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("noth \\ 5");
-		scanner.scanTokens();
-		assertEquals("NOTH(\"noth\") VALUE(\"5\") EOF(\"\") ", scanner.toString());
-	}
+        scanner = new Scanner("noth \\ 5");
+        scanner.scanTokens();
+        assertEquals("NOTH(\"noth\") VALUE(\"5\") EOF(\"\") ", scanner.toString());
+    }
 
-	@Test
-	void testErrorHandler_PrintsOutCorrectErrors() {
-		LexerExceptionHandler exceptionHandler = new LexerExceptionHandler();
-		Scanner scanner = new Scanner("55afwa\n\n\n\n\"unterminated string", exceptionHandler);
-		try {
-			scanner.scanTokens();
-		}catch (RuntimeException e) {
-			assertEquals("Error at line 1 with token type: VALUE\nError at line 5 with token type: STRING\n", exceptionHandler.printExceptions());
-		}
-	}
+    @Test
+    void testErrorHandler_PrintsOutCorrectErrors() {
+        LexerExceptionHandler exceptionHandler = new LexerExceptionHandler();
+        Scanner scanner = new Scanner("55afwa\n\n\n\n\"unterminated string", exceptionHandler);
+        try {
+            scanner.scanTokens();
+        } catch (RuntimeException e) {
+            assertEquals("Error at line 1 with token type: VALUE\nError at line 5 with token type: STRING\n", exceptionHandler.printExceptions());
+        }
+    }
 
-	@Test
-	void testNoErrorHandler_ThrowsError(){
-		assertThrows(RuntimeException.class, () -> {
-			Scanner scanner = new Scanner("55afwa\n\n\n\n");
-			scanner.scanTokens();
-		});
-		assertThrows(RuntimeException.class, () -> {
-			Scanner scanner = new Scanner("\"a");
-			scanner.scanTokens();
-		});
-	}
+    @Test
+    void testNoErrorHandler_ThrowsError() {
+        assertThrows(RuntimeException.class, () -> {
+            Scanner scanner = new Scanner("55afwa\n\n\n\n");
+            scanner.scanTokens();
+        });
+        assertThrows(RuntimeException.class, () -> {
+            Scanner scanner = new Scanner("\"a");
+            scanner.scanTokens();
+        });
+    }
 
 
-	@Test
-	void testFalseKeyword() {
+    @Test
+    void testFalseKeyword() {
 
-		Scanner scanner = new Scanner("false");
-		scanner.scanTokens();
-		assertEquals("FALSE(\"false\") EOF(\"\") ", scanner.toString());
+        Scanner scanner = new Scanner("false");
+        scanner.scanTokens();
+        assertEquals("FALSE(\"false\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("false;");
-		scanner.scanTokens();
-		assertEquals("FALSE(\"false\") SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("false;");
+        scanner.scanTokens();
+        assertEquals("FALSE(\"false\") SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("falsea;");
-		scanner.scanTokens();
-		assertEquals("IDENTIFIER(\"falsea\") SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("falsea;");
+        scanner.scanTokens();
+        assertEquals("IDENTIFIER(\"falsea\") SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
 
 
-	}
+    }
 
-	@Test
-	void testReturnKeyword() {
+    @Test
+    void testReturnKeyword() {
 
-		Scanner scanner = new Scanner("return");
-		scanner.scanTokens();
-		assertEquals("RETURN(\"return\") EOF(\"\") ", scanner.toString());
+        Scanner scanner = new Scanner("return");
+        scanner.scanTokens();
+        assertEquals("RETURN(\"return\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("return;");
-		scanner.scanTokens();
-		assertEquals("RETURN(\"return\") SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("return;");
+        scanner.scanTokens();
+        assertEquals("RETURN(\"return\") SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("returna;");
-		scanner.scanTokens();
-		assertEquals("IDENTIFIER(\"returna\") SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("returna;");
+        scanner.scanTokens();
+        assertEquals("IDENTIFIER(\"returna\") SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
 
 
-	}
+    }
 
 
-	@Test
-	void testSemicolon() {
+    @Test
+    void testSemicolon() {
 
-		Scanner scanner = new Scanner(";");
-		scanner.scanTokens();
-		assertEquals("SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
+        Scanner scanner = new Scanner(";");
+        scanner.scanTokens();
+        assertEquals("SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("!;");
-		scanner.scanTokens();
-		assertEquals("NOT(\"!\") SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("!;");
+        scanner.scanTokens();
+        assertEquals("NOT(\"!\") SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("elsea;");
-		scanner.scanTokens();
-		assertEquals("IDENTIFIER(\"elsea\") SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("elsea;");
+        scanner.scanTokens();
+        assertEquals("IDENTIFIER(\"elsea\") SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
 
 
-	}
+    }
 
 
-	@Test
-	void testElseKeyword() {
+    @Test
+    void testElseKeyword() {
 
-		Scanner scanner = new Scanner("else");
-		scanner.scanTokens();
-		assertEquals("ELSE(\"else\") EOF(\"\") ", scanner.toString());
+        Scanner scanner = new Scanner("else");
+        scanner.scanTokens();
+        assertEquals("ELSE(\"else\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("!else");
-		scanner.scanTokens();
-		assertEquals("NOT(\"!\") ELSE(\"else\") EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("!else");
+        scanner.scanTokens();
+        assertEquals("NOT(\"!\") ELSE(\"else\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("elsea");
-		scanner.scanTokens();
-		assertEquals("IDENTIFIER(\"elsea\") EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("elsea");
+        scanner.scanTokens();
+        assertEquals("IDENTIFIER(\"elsea\") EOF(\"\") ", scanner.toString());
 
 
-	}
+    }
 
 
-	@Test
-	void testSmthKeyword() {
+    @Test
+    void testSmthKeyword() {
 
-		Scanner scanner = new Scanner("smth");
-		scanner.scanTokens();
-		assertEquals("SMTH(\"smth\") EOF(\"\") ", scanner.toString());
+        Scanner scanner = new Scanner("smth");
+        scanner.scanTokens();
+        assertEquals("SMTH(\"smth\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("!smth");
-		scanner.scanTokens();
-		assertEquals("NOT(\"!\") SMTH(\"smth\") EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("!smth");
+        scanner.scanTokens();
+        assertEquals("NOT(\"!\") SMTH(\"smth\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("smtha");
-		scanner.scanTokens();
-		assertEquals("IDENTIFIER(\"smtha\") EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("smtha");
+        scanner.scanTokens();
+        assertEquals("IDENTIFIER(\"smtha\") EOF(\"\") ", scanner.toString());
 
 
-	}
+    }
 
-	@Test
-	void testNot() {
+    @Test
+    void testNot() {
 
-		Scanner scanner = new Scanner("!");
-		scanner.scanTokens();
-		assertEquals("NOT(\"!\") EOF(\"\") ", scanner.toString());
+        Scanner scanner = new Scanner("!");
+        scanner.scanTokens();
+        assertEquals("NOT(\"!\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("!!");
-		scanner.scanTokens();
-		assertEquals("NOT(\"!\") NOT(\"!\") EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("!!");
+        scanner.scanTokens();
+        assertEquals("NOT(\"!\") NOT(\"!\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("!!true");
-		scanner.scanTokens();
-		assertEquals("NOT(\"!\") NOT(\"!\") TRUE(\"true\") EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("!!true");
+        scanner.scanTokens();
+        assertEquals("NOT(\"!\") NOT(\"!\") TRUE(\"true\") EOF(\"\") ", scanner.toString());
 
 
-	}
+    }
 
 
-	@Test
-	void testComments() {
-		Scanner scanner = new Scanner("//test");
-		scanner.scanTokens();
-		assertEquals("EOF(\"\") ", scanner.toString());
+    @Test
+    void testComments() {
+        Scanner scanner = new Scanner("//test");
+        scanner.scanTokens();
+        assertEquals("EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("//test\nId");
-		scanner.scanTokens();
-		assertEquals("IDENTIFIER(\"Id\") EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("//test\nId");
+        scanner.scanTokens();
+        assertEquals("IDENTIFIER(\"Id\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("//test\nId//test\nId");
-		scanner.scanTokens();
-		assertEquals("IDENTIFIER(\"Id\") IDENTIFIER(\"Id\") EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("//test\nId//test\nId");
+        scanner.scanTokens();
+        assertEquals("IDENTIFIER(\"Id\") IDENTIFIER(\"Id\") EOF(\"\") ", scanner.toString());
 
-	}
+    }
 
 
-	@Test
-	void testAssignment() {
-		Scanner scanner = new Scanner("=");
-		scanner.scanTokens();
+    @Test
+    void testAssignment() {
+        Scanner scanner = new Scanner("=");
+        scanner.scanTokens();
 
-		assertEquals("ASSIGNMENT(\"=\") EOF(\"\") ", scanner.toString());
+        assertEquals("ASSIGNMENT(\"=\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("\"test\" = test");
-		scanner.scanTokens();
+        scanner = new Scanner("\"test\" = test");
+        scanner.scanTokens();
 
-		assertEquals("STRING(\"\"test\"\") ASSIGNMENT(\"=\") IDENTIFIER(\"test\") EOF(\"\") ", scanner.toString());
+        assertEquals("STRING(\"\"test\"\") ASSIGNMENT(\"=\") IDENTIFIER(\"test\") EOF(\"\") ", scanner.toString());
 
 
-	}
+    }
 
 
-	@Test
-	void testExpressions() {
+    @Test
+    void testExpressions() {
 
-		LexerExceptionHandler exceptionHandler = new LexerExceptionHandler();
-		Scanner scanner = new Scanner("5+3+8*5=20", exceptionHandler);
-		scanner.scanTokens();
-		assertFalse(exceptionHandler.hasExceptions());
+        LexerExceptionHandler exceptionHandler = new LexerExceptionHandler();
+        Scanner scanner = new Scanner("5+3+8*5=20", exceptionHandler);
+        scanner.scanTokens();
+        assertFalse(exceptionHandler.hasExceptions());
 
-		assertEquals("VALUE(\"5\") PLUS(\"+\") VALUE(\"3\") PLUS(\"+\") VALUE(\"8\") STAR(\"*\") VALUE(\"5\") ASSIGNMENT(\"=\") VALUE(\"20\") EOF(\"\") ", scanner.toString());
+        assertEquals("VALUE(\"5\") PLUS(\"+\") VALUE(\"3\") PLUS(\"+\") VALUE(\"8\") STAR(\"*\") VALUE(\"5\") ASSIGNMENT(\"=\") VALUE(\"20\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("5/8/5*=20");
-		scanner.scanTokens();
+        scanner = new Scanner("5/8/5*=20");
+        scanner.scanTokens();
 
-		assertEquals("VALUE(\"5\") SLASH(\"/\") VALUE(\"8\") SLASH(\"/\") VALUE(\"5\") STAR(\"*\") ASSIGNMENT(\"=\") VALUE(\"20\") EOF(\"\") ", scanner.toString());
+        assertEquals("VALUE(\"5\") SLASH(\"/\") VALUE(\"8\") SLASH(\"/\") VALUE(\"5\") STAR(\"*\") ASSIGNMENT(\"=\") VALUE(\"20\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("5=8+5/=20");
-		scanner.scanTokens();
+        scanner = new Scanner("5=8+5/=20");
+        scanner.scanTokens();
 
-		assertEquals("VALUE(\"5\") ASSIGNMENT(\"=\") VALUE(\"8\") PLUS(\"+\") VALUE(\"5\") SLASH(\"/\") ASSIGNMENT(\"=\") VALUE(\"20\") EOF(\"\") ", scanner.toString());
+        assertEquals("VALUE(\"5\") ASSIGNMENT(\"=\") VALUE(\"8\") PLUS(\"+\") VALUE(\"5\") SLASH(\"/\") ASSIGNMENT(\"=\") VALUE(\"20\") EOF(\"\") ", scanner.toString());
 
-	}
+    }
 
-	@Test
-	void testEquals() {
-		Scanner scanner = new Scanner("==");
-		scanner.scanTokens();
+    @Test
+    void testEquals() {
+        Scanner scanner = new Scanner("==");
+        scanner.scanTokens();
 
-		assertEquals("EQUALS(\"==\") EOF(\"\") ", scanner.toString());
+        assertEquals("EQUALS(\"==\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("\"test\" == test");
-		scanner.scanTokens();
+        scanner = new Scanner("\"test\" == test");
+        scanner.scanTokens();
 
-		assertEquals("STRING(\"\"test\"\") EQUALS(\"==\") IDENTIFIER(\"test\") EOF(\"\") ", scanner.toString());
+        assertEquals("STRING(\"\"test\"\") EQUALS(\"==\") IDENTIFIER(\"test\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("===");
-		scanner.scanTokens();
+        scanner = new Scanner("===");
+        scanner.scanTokens();
 
-		assertEquals("EQUALS(\"==\") ASSIGNMENT(\"=\") EOF(\"\") ", scanner.toString());
-	}
+        assertEquals("EQUALS(\"==\") ASSIGNMENT(\"=\") EOF(\"\") ", scanner.toString());
+    }
 
 
-	@Test
-	void testNotEquals() {
+    @Test
+    void testNotEquals() {
 
-		Scanner scanner = new Scanner("!=");
-		scanner.scanTokens();
+        Scanner scanner = new Scanner("!=");
+        scanner.scanTokens();
 
-		assertEquals("NOT_EQUALS(\"!=\") EOF(\"\") ", scanner.toString());
+        assertEquals("NOT_EQUALS(\"!=\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("\"test\" != test");
-		scanner.scanTokens();
+        scanner = new Scanner("\"test\" != test");
+        scanner.scanTokens();
 
-		assertEquals("STRING(\"\"test\"\") NOT_EQUALS(\"!=\") IDENTIFIER(\"test\") EOF(\"\") ", scanner.toString());
+        assertEquals("STRING(\"\"test\"\") NOT_EQUALS(\"!=\") IDENTIFIER(\"test\") EOF(\"\") ", scanner.toString());
 
-	}
+    }
 
 
-	@Test
-	void testValidTokenInput() {
+    @Test
+    void testValidTokenInput() {
 
 
-		//Testing most tokens
-		Scanner scanner = new Scanner("abc (4) ([])-+ \"test\" loop {} <=>=&|/ if ifa >=>< true ===");
-		scanner.scanTokens();
+        //Testing most tokens
+        Scanner scanner = new Scanner("abc (4) ([])-+ \"test\" loop {} <=>=&|/ if ifa >=>< true ===");
+        scanner.scanTokens();
 
-		assertEquals("IDENTIFIER(\"abc\") LEFT_PARENS(\"(\") VALUE(\"4\") RIGHT_PARENS(\")\") LEFT_PARENS(\"(\") LEFT_SQBRACKET(\"[\") RIGHT_SQBRACKET(\"]\") RIGHT_PARENS(\")\") MINUS(\"-\") PLUS(\"+\") STRING(\"\"test\"\") LOOP(\"loop\") LEFT_CURLYBRAC(\"{\") RIGHT_CURLYBRAC(\"}\") LESS_EQUALS(\"<=\") GREATER_EQUALS(\">=\") AND(\"&\") OR(\"|\") SLASH(\"/\") IF(\"if\") IDENTIFIER(\"ifa\") GREATER_EQUALS(\">=\") GREATER(\">\") LESSER(\"<\") TRUE(\"true\") EQUALS(\"==\") ASSIGNMENT(\"=\") EOF(\"\") ", scanner.toString());
+        assertEquals("IDENTIFIER(\"abc\") LEFT_PARENS(\"(\") VALUE(\"4\") RIGHT_PARENS(\")\") LEFT_PARENS(\"(\") LEFT_SQBRACKET(\"[\") RIGHT_SQBRACKET(\"]\") RIGHT_PARENS(\")\") MINUS(\"-\") PLUS(\"+\") STRING(\"\"test\"\") LOOP(\"loop\") LEFT_CURLYBRAC(\"{\") RIGHT_CURLYBRAC(\"}\") LESS_EQUALS(\"<=\") GREATER_EQUALS(\">=\") AND(\"&\") OR(\"|\") SLASH(\"/\") IF(\"if\") IDENTIFIER(\"ifa\") GREATER_EQUALS(\">=\") GREATER(\">\") LESSER(\"<\") TRUE(\"true\") EQUALS(\"==\") ASSIGNMENT(\"=\") EOF(\"\") ", scanner.toString());
 
-		//Testing empty input
-		scanner = new Scanner("");
-		scanner.scanTokens();
-		assertEquals("EOF(\"\") ", scanner.toString());
+        //Testing empty input
+        scanner = new Scanner("");
+        scanner.scanTokens();
+        assertEquals("EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("--6=");
-		scanner.scanTokens();
-		assertEquals("MINUS(\"-\") MINUS(\"-\") VALUE(\"6\") ASSIGNMENT(\"=\") EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("--6=");
+        scanner.scanTokens();
+        assertEquals("MINUS(\"-\") MINUS(\"-\") VALUE(\"6\") ASSIGNMENT(\"=\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("\r\t");
-		scanner.scanTokens();
-		assertEquals("EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("\r\t");
+        scanner.scanTokens();
+        assertEquals("EOF(\"\") ", scanner.toString());
 
-	}
+    }
 
 
-	@Test
-	void testTrueKeyword() {
+    @Test
+    void testTrueKeyword() {
 
-		Scanner scanner = new Scanner("true");
-		scanner.scanTokens();
-		assertEquals("TRUE(\"true\") EOF(\"\") ", scanner.toString());
+        Scanner scanner = new Scanner("true");
+        scanner.scanTokens();
+        assertEquals("TRUE(\"true\") EOF(\"\") ", scanner.toString());
 
-		//Ensuring that you can start identifiers with loop keyword
-		scanner = new Scanner("truea");
-		scanner.scanTokens();
-		assertEquals("IDENTIFIER(\"truea\") EOF(\"\") ", scanner.toString());
+        //Ensuring that you can start identifiers with loop keyword
+        scanner = new Scanner("truea");
+        scanner.scanTokens();
+        assertEquals("IDENTIFIER(\"truea\") EOF(\"\") ", scanner.toString());
 
 
-		scanner = new Scanner("true hello (");
-		scanner.scanTokens();
-		assertEquals("TRUE(\"true\") IDENTIFIER(\"hello\") LEFT_PARENS(\"(\") EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("true hello (");
+        scanner.scanTokens();
+        assertEquals("TRUE(\"true\") IDENTIFIER(\"hello\") LEFT_PARENS(\"(\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("true if truea");
-		scanner.scanTokens();
-		assertEquals("TRUE(\"true\") IF(\"if\") IDENTIFIER(\"truea\") EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("true if truea");
+        scanner.scanTokens();
+        assertEquals("TRUE(\"true\") IF(\"if\") IDENTIFIER(\"truea\") EOF(\"\") ", scanner.toString());
 
 
-	}
+    }
 
 
-	@Test
-	void testLoopKeyword() {
+    @Test
+    void testLoopKeyword() {
 
-		Scanner scanner = new Scanner("loop");
-		scanner.scanTokens();
-		assertEquals("LOOP(\"loop\") EOF(\"\") ", scanner.toString());
+        Scanner scanner = new Scanner("loop");
+        scanner.scanTokens();
+        assertEquals("LOOP(\"loop\") EOF(\"\") ", scanner.toString());
 
-		//Ensuring that you can start identifiers with loop keyword
-		scanner = new Scanner("loopa");
-		scanner.scanTokens();
-		assertEquals("IDENTIFIER(\"loopa\") EOF(\"\") ", scanner.toString());
+        //Ensuring that you can start identifiers with loop keyword
+        scanner = new Scanner("loopa");
+        scanner.scanTokens();
+        assertEquals("IDENTIFIER(\"loopa\") EOF(\"\") ", scanner.toString());
 
 
-		scanner = new Scanner("loop hello (");
-		scanner.scanTokens();
-		assertEquals("LOOP(\"loop\") IDENTIFIER(\"hello\") LEFT_PARENS(\"(\") EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("loop hello (");
+        scanner.scanTokens();
+        assertEquals("LOOP(\"loop\") IDENTIFIER(\"hello\") LEFT_PARENS(\"(\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("loop if loopa");
-		scanner.scanTokens();
-		assertEquals("LOOP(\"loop\") IF(\"if\") IDENTIFIER(\"loopa\") EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("loop if loopa");
+        scanner.scanTokens();
+        assertEquals("LOOP(\"loop\") IF(\"if\") IDENTIFIER(\"loopa\") EOF(\"\") ", scanner.toString());
 
-	}
+    }
 
 
-	@Test
-	void testIfToken() {
+    @Test
+    void testIfToken() {
 
-		//Test if with multiple tokens
-		Scanner scanner = new Scanner("if hello )");
-		scanner.scanTokens();
-		assertEquals("IF(\"if\") IDENTIFIER(\"hello\") RIGHT_PARENS(\")\") EOF(\"\") ", scanner.toString());
+        //Test if with multiple tokens
+        Scanner scanner = new Scanner("if hello )");
+        scanner.scanTokens();
+        assertEquals("IF(\"if\") IDENTIFIER(\"hello\") RIGHT_PARENS(\")\") EOF(\"\") ", scanner.toString());
 
-		//Ensuring that you can start identifiers with if keywords
+        //Ensuring that you can start identifiers with if keywords
 
-		scanner = new Scanner("ifhello");
-		scanner.scanTokens();
-		assertEquals("IDENTIFIER(\"ifhello\") EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("ifhello");
+        scanner.scanTokens();
+        assertEquals("IDENTIFIER(\"ifhello\") EOF(\"\") ", scanner.toString());
 
 
-		//test with single if
-		scanner = new Scanner("if");
-		scanner.scanTokens();
-		assertEquals("IF(\"if\") EOF(\"\") ", scanner.toString());
-	}
+        //test with single if
+        scanner = new Scanner("if");
+        scanner.scanTokens();
+        assertEquals("IF(\"if\") EOF(\"\") ", scanner.toString());
+    }
 
 
+    @Test
+    void testValidIdentifierInput() {
+        //Testing EC identifier med siffror i sig (ej början
+        Scanner scanner = new Scanner("aa512");
+        scanner.scanTokens();
+        assertEquals("IDENTIFIER(\"aa512\") EOF(\"\") ", scanner.toString());
 
-	@Test
-	void testValidIdentifierInput() {
-		//Testing EC identifier med siffror i slutet
-		Scanner scanner = new Scanner("aa512");
-		scanner.scanTokens();
-		assertEquals("IDENTIFIER(\"aa512\") EOF(\"\") ", scanner.toString());
+        //Testing EC Identifier med unicode tecken i sig
+        LexerExceptionHandler exceptionHandler = new LexerExceptionHandler();
+        try {
+            scanner = new Scanner("aaaä", exceptionHandler);
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        }
+        assertTrue(exceptionHandler.hasExceptions());
 
-		//Testing EC Identifier med unicode tecken i sig
-		LexerExceptionHandler exceptionHandler = new LexerExceptionHandler();
-		try {
-			scanner = new Scanner("aaaä", exceptionHandler);
-			scanner.scanTokens();
-		}catch(RuntimeException ignored){}
-			assertTrue(exceptionHandler.hasExceptions());
+        //Testing EC "Identifier med siffror i början och bokstäver efter
+        exceptionHandler = new LexerExceptionHandler();
+        try {
+            scanner = new Scanner("5112adw", exceptionHandler);
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        }
+        assertTrue(exceptionHandler.hasExceptions());
 
-		//Testing EC "Identifier med siffror i början och bokstäver efter
-		exceptionHandler = new LexerExceptionHandler();
-		try {
-			scanner = new Scanner("5112adw", exceptionHandler);
-			scanner.scanTokens();
-		}catch(RuntimeException ignored) {}
-			assertTrue(exceptionHandler.hasExceptions());
+        //Testing EC Identifier med _ i sig
+        scanner = new Scanner("a12_5");
+        scanner.scanTokens();
+        assertEquals("IDENTIFIER(\"a12_5\") EOF(\"\") ", scanner.toString());
 
-		//Testing EC Identifier med _ i sig
-		scanner = new Scanner("a12_5");
-		scanner.scanTokens();
-		assertEquals("IDENTIFIER(\"a12_5\") EOF(\"\") ", scanner.toString());
+        //Testing EC Identifier med ogiltigt ascitecken i sig (ej början)
+        exceptionHandler = new LexerExceptionHandler();
+        try {
+            scanner = new Scanner("aaaa@a", exceptionHandler);
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        }
+        assertTrue(exceptionHandler.hasExceptions());
 
-		//Testing EC Identifier med ogiltigt ascitecken i sig (ej början)
-		exceptionHandler = new LexerExceptionHandler();
-		try {
-			scanner = new Scanner("aaaa@a", exceptionHandler);
-			scanner.scanTokens();
-		}catch(RuntimeException ignored){}
-		assertTrue(exceptionHandler.hasExceptions());
+        //Testing EC 512321 generates value not identifier
+        scanner = new Scanner("512321");
+        scanner.scanTokens();
+        assertEquals("VALUE(\"512321\") EOF(\"\") ", scanner.toString());
 
-		//Testing EC 512321 generates value not identifier
-		scanner = new Scanner("512321");
-		scanner.scanTokens();
-		assertEquals("VALUE(\"512321\") EOF(\"\") ", scanner.toString());
+        //Testing  _
+        scanner = new Scanner("_");
+        scanner.scanTokens();
+        assertEquals("IDENTIFIER(\"_\") EOF(\"\") ", scanner.toString());
 
-		//Testing EC _
-		scanner = new Scanner("_");
-		scanner.scanTokens();
-		assertEquals("IDENTIFIER(\"_\") EOF(\"\") ", scanner.toString());
+        //Testing EC single letter
+        scanner = new Scanner("a");
+        scanner.scanTokens();
+        assertEquals("IDENTIFIER(\"a\") EOF(\"\") ", scanner.toString());
 
-		//Testing EC single letter
-		scanner = new Scanner("a");
-		scanner.scanTokens();
-		assertEquals("IDENTIFIER(\"a\") EOF(\"\") ", scanner.toString());
+        //Testing EC  Identifier vars delsträng är reserved keyword
+        scanner = new Scanner("ifx");
+        scanner.scanTokens();
+        assertEquals("IDENTIFIER(\"ifx\") EOF(\"\") ", scanner.toString());
 
-		//Testing EC  Identifier vars delsträng är reserved keyword
-		scanner = new Scanner("ifx");
-		scanner.scanTokens();
-		assertEquals("IDENTIFIER(\"ifx\") EOF(\"\") ", scanner.toString());
+        //Testing EC “Identifier” som är ett reserverat keyword
+        scanner = new Scanner("if = 5");
+        scanner.scanTokens();
+        assertEquals("IF(\"if\") ASSIGNMENT(\"=\") VALUE(\"5\") EOF(\"\") ", scanner.toString());
 
-		//Testing EC “Identifier” som är ett reserverat keyword
-		scanner = new Scanner("if = 5");
-		scanner.scanTokens();
-		assertEquals("IF(\"if\") ASSIGNMENT(\"=\") VALUE(\"5\") EOF(\"\") ", scanner.toString());
 
+        //Testing most basic path
+        scanner = new Scanner("test123");
+        scanner.scanTokens();
+        assertEquals("IDENTIFIER(\"test123\") EOF(\"\") ", scanner.toString());
 
-		//Testing most basic path
-		scanner = new Scanner("test123");
-		scanner.scanTokens();
-		assertEquals("IDENTIFIER(\"test123\") EOF(\"\") ", scanner.toString());
+        //Testing underscore inside identifier
+        scanner = new Scanner("test_123");
+        scanner.scanTokens();
+        assertEquals("IDENTIFIER(\"test_123\") EOF(\"\") ", scanner.toString());
 
-		//Testing underscore inside identifier
-		scanner = new Scanner("test_123");
-		scanner.scanTokens();
-		assertEquals("IDENTIFIER(\"test_123\") EOF(\"\") ", scanner.toString());
+        //Testing underscore at start of Identifier
 
-		//Testing underscore at start of Identifier
+        scanner = new Scanner("_test123");
+        scanner.scanTokens();
+        assertEquals("IDENTIFIER(\"_test123\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("_test123");
-		scanner.scanTokens();
-		assertEquals("IDENTIFIER(\"_test123\") EOF(\"\") ", scanner.toString());
+        //Testing identifier with valid delimiter at end
+        scanner = new Scanner("test123)");
+        scanner.scanTokens();
+        assertEquals("IDENTIFIER(\"test123\") RIGHT_PARENS(\")\") EOF(\"\") ", scanner.toString());
 
-		//Testing identifier with valid delimiter at end
-		scanner = new Scanner("test123)");
-		scanner.scanTokens();
-		assertEquals("IDENTIFIER(\"test123\") RIGHT_PARENS(\")\") EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("test123,");
+        scanner.scanTokens();
+        assertEquals("IDENTIFIER(\"test123\") COMMA(\",\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("test123,");
-		scanner.scanTokens();
-		assertEquals("IDENTIFIER(\"test123\") COMMA(\",\") EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("test123=");
+        scanner.scanTokens();
+        assertEquals("IDENTIFIER(\"test123\") ASSIGNMENT(\"=\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("test123=");
-		scanner.scanTokens();
-		assertEquals("IDENTIFIER(\"test123\") ASSIGNMENT(\"=\") EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("test123;");
+        scanner.scanTokens();
+        assertEquals("IDENTIFIER(\"test123\") SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("test123;");
-		scanner.scanTokens();
-		assertEquals("IDENTIFIER(\"test123\") SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
+        exceptionHandler = new LexerExceptionHandler();
+        try {
+            scanner = new Scanner("aaaä+", exceptionHandler);
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        }
+        assertTrue(exceptionHandler.hasExceptions());
+        exceptionHandler = new LexerExceptionHandler();
 
-		exceptionHandler = new LexerExceptionHandler();
-		try {
-			scanner = new Scanner("aaaä+", exceptionHandler);
-			scanner.scanTokens();
-		}catch(RuntimeException ignored){}
-		assertTrue(exceptionHandler.hasExceptions());
-		exceptionHandler = new LexerExceptionHandler();
+        try {
+            scanner = new Scanner("aaaä\t", exceptionHandler);
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        }
+        assertTrue(exceptionHandler.hasExceptions());
 
-		try {
-			scanner = new Scanner("aaaä\t", exceptionHandler);
-			scanner.scanTokens();
-		}catch(RuntimeException ignored){}
-		assertTrue(exceptionHandler.hasExceptions());
+        try {
+            scanner = new Scanner("aaaä;", exceptionHandler);
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        }
+        assertTrue(exceptionHandler.hasExceptions());
 
-		try {
-			scanner = new Scanner("aaaä;", exceptionHandler);
-			scanner.scanTokens();
-		}catch(RuntimeException ignored){}
-		assertTrue(exceptionHandler.hasExceptions());
+        try {
+            scanner = new Scanner("aaaä)", exceptionHandler);
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        }
+        assertTrue(exceptionHandler.hasExceptions());
 
-		try {
-			scanner = new Scanner("aaaä)", exceptionHandler);
-			scanner.scanTokens();
-		}catch(RuntimeException ignored){}
-		assertTrue(exceptionHandler.hasExceptions());
+        try {
+            scanner = new Scanner("aaaä=", exceptionHandler);
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        }
+        assertTrue(exceptionHandler.hasExceptions());
 
-		try {
-			scanner = new Scanner("aaaä=", exceptionHandler);
-			scanner.scanTokens();
-		}catch(RuntimeException ignored){}
-		assertTrue(exceptionHandler.hasExceptions());
+        try {
+            scanner = new Scanner("aaaä,", exceptionHandler);
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        }
+        assertTrue(exceptionHandler.hasExceptions());
 
-		try {
-			scanner = new Scanner("aaaä,", exceptionHandler);
-			scanner.scanTokens();
-		}catch(RuntimeException ignored){}
-		assertTrue(exceptionHandler.hasExceptions());
+        //Testing EC invalid identifier with \n
+        try {
+            scanner = new Scanner("aaaaä\n", exceptionHandler);
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        }
+        assertTrue(exceptionHandler.hasExceptions());
+        assertEquals(2, scanner.getNline());
+    }
 
-		//Testing EC invalid identifier with \n
-		try {
-			scanner = new Scanner("aaaaä\n", exceptionHandler);
-			scanner.scanTokens();
-		}catch(RuntimeException ignored){}
-		assertTrue(exceptionHandler.hasExceptions());
-		assertEquals(2, scanner.getNline());
-	}
+    @Test
+    void testNlines() {
+        Scanner scanner = new Scanner("\n\n\n");
+        scanner.scanTokens();
+        //since we start at nline = 1
+        assertEquals(4, scanner.getNline());
 
-	@Test
-	void testNlines() {
-		Scanner scanner = new Scanner("\n\n\n");
-		scanner.scanTokens();
-		//since we start at nline = 1
-		assertEquals(4, scanner.getNline());
+        scanner = new Scanner("\n\ntest\n\n");
+        scanner.scanTokens();
+        assertEquals(5, scanner.getNline());
 
-		scanner = new Scanner("\n\ntest\n\n");
-		scanner.scanTokens();
-		assertEquals(5, scanner.getNline());
+        scanner = new Scanner("\n\ntest\n\n\n\ntest\n\n\n\ntest\n\n");
+        scanner.scanTokens();
+        assertEquals(13, scanner.getNline());
+    }
 
-		scanner = new Scanner("\n\ntest\n\n\n\ntest\n\n\n\ntest\n\n");
-		scanner.scanTokens();
-		assertEquals(13, scanner.getNline());
-	}
+    @Test
+    void testValidStringInputs() {
 
-	@Test
-	void testValidStringInputs() {
+        //Testing empty string
+        Scanner scanner = new Scanner("\"\"");
+        scanner.scanTokens();
 
-		//Testing empty string
-		Scanner scanner = new Scanner("\"\"");
-		scanner.scanTokens();
+        assertEquals("STRING(\"\"\"\") EOF(\"\") ", scanner.toString());
 
-		assertEquals("STRING(\"\"\"\") EOF(\"\") ", scanner.toString());
+        //Testing EC strings with newline:
+        scanner = new Scanner("\"te\nst\"");
+        scanner.scanTokens();
+        assertEquals("STRING(\"\"te\nst\"\") EOF(\"\") ", scanner.toString());
+        assertEquals(2, scanner.getNline());
 
-		//Testing EC strings with newline:
-		scanner = new Scanner("\"te\nst\"");
-		scanner.scanTokens();
-		assertEquals("STRING(\"\"te\nst\"\") EOF(\"\") ", scanner.toString());
-		assertEquals(2, scanner.getNline());
+        //Testing unterminated string
+        LexerExceptionHandler exceptionHandler = new LexerExceptionHandler();
 
-		//Testing unterminated string
-		LexerExceptionHandler exceptionHandler = new LexerExceptionHandler();
+        scanner = new Scanner("\"test", exceptionHandler);
+        try {
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        }
+        assertTrue(exceptionHandler.hasExceptions());
 
-		scanner = new Scanner("\"test", exceptionHandler);
-		try {
-			scanner.scanTokens();
-		}catch(RuntimeException ignored){}
-			assertTrue(exceptionHandler.hasExceptions());
 
+        //Testing normal anum, testing EC string with only reserved words in it
+        scanner = new Scanner("\"ifloopsmth\"");
+        scanner.scanTokens();
+        assertEquals("STRING(\"\"ifloopsmth\"\") EOF(\"\") ", scanner.toString());
 
-		//Testing normal anum, testing EC string with only reserved words in it
-		scanner = new Scanner("\"ifloopsmth\"");
-		scanner.scanTokens();
-		assertEquals("STRING(\"\"ifloopsmth\"\") EOF(\"\") ", scanner.toString());
+        //Testing string with embedded quotes
 
-		//Testing string with embedded quotes
+        scanner = new Scanner("\"te\"\"st\"");
 
-		scanner = new Scanner("\"te\"\"st\"");
+        scanner.scanTokens();
+        assertEquals("STRING(\"\"te\"\") STRING(\"\"st\"\") EOF(\"\") ", scanner.toString());
 
-		scanner.scanTokens();
-		assertEquals("STRING(\"\"te\"\") STRING(\"\"st\"\") EOF(\"\") ", scanner.toString());
 
+        //Testing unterminated string
+        exceptionHandler = new LexerExceptionHandler();
+        scanner = new Scanner("\"test", exceptionHandler);
+        try {
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        }
+        assertTrue(exceptionHandler.hasExceptions());
 
-		//Testing unterminated string
-		exceptionHandler = new LexerExceptionHandler();
-		scanner = new Scanner("\"test", exceptionHandler);
-		try {
-			scanner.scanTokens();
-		}catch(RuntimeException ignored) {}
-			assertTrue(exceptionHandler.hasExceptions());
 
+        //Testing EC strings with non alphanumeric characters
+        scanner = new Scanner("\"@@@@@@@@\"");
+        scanner.scanTokens();
+        assertEquals("STRING(\"\"@@@@@@@@\"\") EOF(\"\") ", scanner.toString());
 
-		//Testing EC strings with non alphanumeric characters
-		scanner = new Scanner("\"@@@@@@@@\"");
-		scanner.scanTokens();
-		assertEquals("STRING(\"\"@@@@@@@@\"\") EOF(\"\") ", scanner.toString());
+        //Testing EC strings with digits at the beginning and end
+        scanner = new Scanner("\"123te\nst123\"");
+        scanner.scanTokens();
+        assertEquals("STRING(\"\"123te\nst123\"\") EOF(\"\") ", scanner.toString());
 
-		//Testing EC strings with digits at the beginning and end
-		scanner = new Scanner("\"123te\nst123\"");
-		scanner.scanTokens();
-		assertEquals("STRING(\"\"123te\nst123\"\") EOF(\"\") ", scanner.toString());
+        //Testing EC string with UNICODE
+        scanner = new Scanner("\"ä\"");
+        scanner.scanTokens();
+        assertEquals("STRING(\"\"ä\"\") EOF(\"\") ", scanner.toString());
 
-		//Testing EC string with UNICODE
-		scanner = new Scanner("\"ä\"");
-		scanner.scanTokens();
-		assertEquals("STRING(\"\"ä\"\") EOF(\"\") ", scanner.toString());
+        //Testing String immediately followed by valid token
+        scanner = new Scanner("\"te st\"{");
+        scanner.scanTokens();
+        assertEquals("STRING(\"\"te st\"\") LEFT_CURLYBRAC(\"{\") EOF(\"\") ", scanner.toString());
 
-		//Testing String immediately followed by valid token
-		scanner = new Scanner("\"te st\"{");
-		scanner.scanTokens();
-		assertEquals("STRING(\"\"te st\"\") LEFT_CURLYBRAC(\"{\") EOF(\"\") ", scanner.toString());
 
+        scanner = new Scanner("\"123te\nst123+\"");
+        scanner.scanTokens();
+        assertEquals("STRING(\"\"123te\nst123+\"\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("\"123te\nst123+\"");
-		scanner.scanTokens();
-		assertEquals("STRING(\"\"123te\nst123+\"\") EOF(\"\") ", scanner.toString());
 
+        scanner = new Scanner("\"te st\"");
+        scanner.scanTokens();
+        assertEquals("STRING(\"\"te st\"\") EOF(\"\") ", scanner.toString());
 
+        //Testing input with multiple tokens and string at the end:
+        scanner = new Scanner("id} 5 /id+ 10 id*\"@123te\nst\"");
+        scanner.scanTokens();
+        assertEquals("IDENTIFIER(\"id\") RIGHT_CURLYBRAC(\"}\") VALUE(\"5\") SLASH(\"/\") IDENTIFIER(\"id\") PLUS(\"+\") VALUE(\"10\") IDENTIFIER(\"id\") STAR(\"*\") STRING(\"\"@123te\nst\"\") EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("\"te st\"");
-		scanner.scanTokens();
-		assertEquals("STRING(\"\"te st\"\") EOF(\"\") ", scanner.toString());
+    }
 
-		//Testing input with multiple tokens and string at the end:
-		scanner = new Scanner("id} 5 /id+ 10 id*\"@123te\nst\"");
-		scanner.scanTokens();
-		assertEquals("IDENTIFIER(\"id\") RIGHT_CURLYBRAC(\"}\") VALUE(\"5\") SLASH(\"/\") IDENTIFIER(\"id\") PLUS(\"+\") VALUE(\"10\") IDENTIFIER(\"id\") STAR(\"*\") STRING(\"\"@123te\nst\"\") EOF(\"\") ", scanner.toString());
+    @Test
+    void testValueReturnsCorrectLiteralVal() {
+        //Testing basic input
+        Scanner scanner = new Scanner("4 ([])");
+        scanner.scanTokens();
+        Token tok = scanner.getTokens().get(0);
+        //Third arg is delta to account for rounding precision
+        assertEquals(4, (double) tok.getLiteral(), 0.001);
 
-	}
+        //Testing single character digit input
+        scanner = new Scanner("3");
+        scanner.scanTokens();
+        tok = scanner.getTokens().get(0);
+        assertEquals(3, (double) tok.getLiteral(), 0.001);
 
-	@Test
-	void testValueReturnsCorrectLiteralVal() {
-		//Testing basic input
-		Scanner scanner = new Scanner("4 ([])");
-		scanner.scanTokens();
-		Token tok = scanner.getTokens().get(0);
-		//Third arg is delta to account for rounding precision
-		assertEquals(4, (double) tok.getLiteral(), 0.001);
+        scanner = new Scanner("3.5*6");
+        scanner.scanTokens();
+        tok = scanner.getTokens().get(0);
+        assertEquals(3.5, (double) tok.getLiteral(), 0.001);
 
-		//Testing single character digit input
-		scanner = new Scanner("3");
-		scanner.scanTokens();
-		tok = scanner.getTokens().get(0);
-		assertEquals( 3, (double) tok.getLiteral(), 0.001);
+        //EC negative numbers
+        scanner = new Scanner("-11");
+        scanner.scanTokens();
+        tok = scanner.getTokens().get(1);
+        assertEquals("MINUS(\"-\") VALUE(\"11\") EOF(\"\") ", scanner.toString());
+        assertEquals(11, (double) tok.getLiteral(), 0.001);
 
-		scanner = new Scanner("3.5*6");
-		scanner.scanTokens();
-		tok = scanner.getTokens().get(0);
-		assertEquals( 3.5, (double) tok.getLiteral(), 0.001);
+    }
 
-		//EC negative numbers
-		scanner = new Scanner("-11");
-		scanner.scanTokens();
-		tok = scanner.getTokens().get(1);
-		assertEquals("MINUS(\"-\") VALUE(\"11\") EOF(\"\") ", scanner.toString());
-		assertEquals( 11, (double) tok.getLiteral(), 0.001);
+    @Test
+    void testOperators() {
+        Scanner scanner = new Scanner("++6");
+        scanner.scanTokens();
+        assertEquals("PLUS(\"+\") PLUS(\"+\") VALUE(\"6\") EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("--6++**");
+        scanner.scanTokens();
+        assertEquals("MINUS(\"-\") MINUS(\"-\") VALUE(\"6\") PLUS(\"+\") PLUS(\"+\") STAR(\"*\") STAR(\"*\") EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("--6/");
+        scanner.scanTokens();
+        assertEquals("MINUS(\"-\") MINUS(\"-\") VALUE(\"6\") SLASH(\"/\") EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("--6-");
+        scanner.scanTokens();
+        assertEquals("MINUS(\"-\") MINUS(\"-\") VALUE(\"6\") MINUS(\"-\") EOF(\"\") ", scanner.toString());
+        scanner = new Scanner("--6=");
+        scanner.scanTokens();
+        assertEquals("MINUS(\"-\") MINUS(\"-\") VALUE(\"6\") ASSIGNMENT(\"=\") EOF(\"\") ", scanner.toString());
 
-	}
+    }
 
-	@Test
-	void testOperators() {
-		Scanner scanner = new Scanner("++6");
-		scanner.scanTokens();
-		assertEquals("PLUS(\"+\") PLUS(\"+\") VALUE(\"6\") EOF(\"\") ", scanner.toString());
-		scanner = new Scanner("--6++**");
-		scanner.scanTokens();
-		assertEquals("MINUS(\"-\") MINUS(\"-\") VALUE(\"6\") PLUS(\"+\") PLUS(\"+\") STAR(\"*\") STAR(\"*\") EOF(\"\") ", scanner.toString());
-		scanner = new Scanner("--6/");
-		scanner.scanTokens();
-		assertEquals("MINUS(\"-\") MINUS(\"-\") VALUE(\"6\") SLASH(\"/\") EOF(\"\") ", scanner.toString());
-		scanner = new Scanner("--6-");
-		scanner.scanTokens();
-		assertEquals("MINUS(\"-\") MINUS(\"-\") VALUE(\"6\") MINUS(\"-\") EOF(\"\") ", scanner.toString());
-		scanner = new Scanner("--6=");
-		scanner.scanTokens();
-		assertEquals("MINUS(\"-\") MINUS(\"-\") VALUE(\"6\") ASSIGNMENT(\"=\") EOF(\"\") ", scanner.toString());
+    @Test
+    void testUnknownToken() {
 
-	}
+        LexerExceptionHandler exceptionHandler = new LexerExceptionHandler();
+        Scanner scanner = new Scanner("if@", exceptionHandler);
+        try {
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        }
+        assertTrue(exceptionHandler.hasExceptions());
+        //Okänd token input
+        exceptionHandler = new LexerExceptionHandler();
+        scanner = new Scanner("@", exceptionHandler);
+        try {
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        }
+        assertTrue(exceptionHandler.hasExceptions());
 
-	@Test
-	void testUnknownToken(){
 
-		LexerExceptionHandler exceptionHandler = new LexerExceptionHandler();
-		Scanner scanner = new Scanner("if@", exceptionHandler);
-		try {
-			scanner.scanTokens();
-		}catch(RuntimeException ignored) {}
-		assertTrue(exceptionHandler.hasExceptions());
+        exceptionHandler = new LexerExceptionHandler();
+        scanner = new Scanner("@", exceptionHandler);
+        try {
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        }
+        assertTrue(exceptionHandler.hasExceptions());
 
-		exceptionHandler = new LexerExceptionHandler();
-		scanner = new Scanner("@", exceptionHandler);
-		try {
-			scanner.scanTokens();
-		}catch(RuntimeException ignored) {}
-		assertTrue(exceptionHandler.hasExceptions());
+        exceptionHandler = new LexerExceptionHandler();
+        scanner = new Scanner("!@", exceptionHandler);
+        try {
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        }
+        assertTrue(exceptionHandler.hasExceptions());
+    }
 
+    @Test
+    void testReserved() {
+        LexerExceptionHandler exceptionHandler = new LexerExceptionHandler();
+        Scanner scanner = new Scanner("true@", exceptionHandler);
+        try {
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        }
+        assertTrue(exceptionHandler.hasExceptions());
 
-		exceptionHandler = new LexerExceptionHandler();
-		scanner = new Scanner("@", exceptionHandler);
-		try {
-			scanner.scanTokens();
-		}catch(RuntimeException ignored) {}
-		assertTrue(exceptionHandler.hasExceptions());
+        scanner = new Scanner("truE");
+        scanner.scanTokens();
+        assertEquals("IDENTIFIER(\"truE\") EOF(\"\") ", scanner.toString());
+        //token följd av valid delimiter
+        scanner = new Scanner("true;");
+        scanner.scanTokens();
+        assertEquals("TRUE(\"true\") SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
 
-		exceptionHandler = new LexerExceptionHandler();
-		scanner = new Scanner("!@", exceptionHandler);
-		try {
-			scanner.scanTokens();
-		}catch(RuntimeException ignored) {}
-		assertTrue(exceptionHandler.hasExceptions());
-	}
-	@Test
-	void testReserved(){
-		LexerExceptionHandler exceptionHandler = new LexerExceptionHandler();
-		Scanner scanner = new Scanner("true@", exceptionHandler);
-		try {
-			scanner.scanTokens();
-		}catch(RuntimeException ignored) {}
-		assertTrue(exceptionHandler.hasExceptions());
+    }
 
-		scanner = new Scanner("truE");
-		scanner.scanTokens();
-		assertEquals("IDENTIFIER(\"truE\") EOF(\"\") ", scanner.toString());
+    @Test
+    void testGeneralTokenInput() {
+        //Tom input
+        Scanner scanner = new Scanner("");
+        scanner.scanTokens();
+        assertEquals("EOF(\"\") ", scanner.toString());
 
-		scanner = new Scanner("true;");
-		scanner.scanTokens();
-		assertEquals("IDENTIFIER(\"truE\") EOF(\"\") ", scanner.toString());
+        //Input med flera delimiters i rad
+        scanner = new Scanner(";;;;");
+        scanner.scanTokens();
+        assertEquals("SEMICOLON(\";\") SEMICOLON(\";\") SEMICOLON(\";\") SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
 
-	}
+        //Input med tab mellan tokens
+        scanner = new Scanner("a\ta");
+        scanner.scanTokens();
+        assertEquals("IDENTIFIER(\"a\") IDENTIFIER(\"a\") EOF(\"\") ", scanner.toString());
 
+        //Input med flera mellanslag mellan tokens
+        scanner = new Scanner("a      t");
+        scanner.scanTokens();
+        assertEquals("IDENTIFIER(\"a\") IDENTIFIER(\"t\") EOF(\"\") ", scanner.toString());
 
+        //Reserverade ord ej skrivna med skiftlägeskänslighet
+        scanner = new Scanner("rEturn");
+        scanner.scanTokens();
+        assertEquals("IDENTIFIER(\"rEturn\") EOF(\"\") ", scanner.toString());
+
+    }
 }
