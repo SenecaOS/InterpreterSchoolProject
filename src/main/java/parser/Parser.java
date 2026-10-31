@@ -47,8 +47,7 @@ public class Parser {
         }
 
         if (parserExceptionHandler != null && parserExceptionHandler.hasExceptions()) {
-            System.err.println(parserExceptionHandler.printExceptions());
-            throw new RuntimeException();
+            throw new RuntimeException(parserExceptionHandler.printExceptions());
         }
 
         return statements;
@@ -136,7 +135,6 @@ public class Parser {
         consume(RIGHT_PARENS, ")");
         Statement.Block block = blockStatement();
         return new Statement.Loop(block, expression);
-
     }
 
     private Statement.If ifStatement() {
