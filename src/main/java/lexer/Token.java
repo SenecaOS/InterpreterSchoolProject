@@ -28,7 +28,7 @@ public class Token {
 	}
 
 	public String toString(){
-		return tokenType.toString() /*+ "(\"" + val + "\")" */;
+		return tokenType.toString() + "(\"" + val + "\")";
 	}
 	
 }
