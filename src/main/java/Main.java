@@ -18,7 +18,7 @@ public class Main {
 	}
 	
 	private static void runFile() throws IOException {
-		byte[] bytes = Files.readAllBytes(Paths.get("src/file.smth"));
+		byte[] bytes = Files.readAllBytes(Paths.get("test-files/gigantic_smth_1000000_lines.smth"));
 		run(new String(bytes, Charset.defaultCharset()));
 	}
 		

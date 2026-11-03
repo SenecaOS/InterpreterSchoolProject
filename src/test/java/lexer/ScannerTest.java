@@ -1,5 +1,6 @@
 package lexer;
 
+import exceptions.ExceptionHandler;
 import exceptions.lexer.LexerExceptionHandler;
 import org.junit.jupiter.api.Test;
 
@@ -75,9 +76,7 @@ public class ScannerTest {
         scanner.scanTokens();
         assertEquals("IDENTIFIER(\"falsea\") SEMICOLON(\";\") EOF(\"\") ", scanner.toString());
 
-
     }
-
     @Test
     void testReturnKeyword() {
 
@@ -301,7 +300,7 @@ public class ScannerTest {
         assertEquals("IDENTIFIER(\"truea\") EOF(\"\") ", scanner.toString());
 
 
-        scanner = new Scanner("true hello (");
+        scanner = new Scanner("true hello(");
         scanner.scanTokens();
         assertEquals("TRUE(\"true\") IDENTIFIER(\"hello\") LEFT_PARENS(\"(\") EOF(\"\") ", scanner.toString());
 
@@ -596,7 +595,7 @@ public class ScannerTest {
         scanner.scanTokens();
         assertEquals("STRING(\"\"te st\"\") LEFT_CURLYBRAC(\"{\") EOF(\"\") ", scanner.toString());
 
-
+        //testing string with new line
         scanner = new Scanner("\"123te\nst123+\"");
         scanner.scanTokens();
         assertEquals("STRING(\"\"123te\nst123+\"\") EOF(\"\") ", scanner.toString());
@@ -660,11 +659,166 @@ public class ScannerTest {
         scanner.scanTokens();
         assertEquals("MINUS(\"-\") MINUS(\"-\") VALUE(\"6\") ASSIGNMENT(\"=\") EOF(\"\") ", scanner.toString());
 
+        //Felformaterat tal
+        LexerExceptionHandler  exceptionHandler = new LexerExceptionHandler();
+        scanner = new Scanner("1,5", exceptionHandler);
+        try {
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        }
+        assertTrue(exceptionHandler.hasExceptions());
+
+
+
+        //Testing Tal som slutar på en bokstav eller annan ogiltig delimiter
+        exceptionHandler = new LexerExceptionHandler();
+        scanner = new Scanner("1.5{", exceptionHandler);
+        try {
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        }
+        assertTrue(exceptionHandler.hasExceptions());
+
+
+        exceptionHandler = new LexerExceptionHandler();
+        scanner = new Scanner("1.2.5", exceptionHandler);
+        try {
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        }
+        assertTrue(exceptionHandler.hasExceptions());
+
+        scanner = new Scanner("+-*/===");
+        scanner.scanTokens();
+        assertEquals("PLUS(\"+\") MINUS(\"-\") STAR(\"*\") SLASH(\"/\") EQUALS(\"==\") ASSIGNMENT(\"=\") EOF(\"\") ", scanner.toString()) ;
+
+        exceptionHandler = new LexerExceptionHandler();
+        scanner = new Scanner("%", exceptionHandler);
+        try {
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        }
+        assertTrue(exceptionHandler.hasExceptions());
+
+
     }
 
     @Test
-    void testUnknownToken() {
+    void testEquivalenceClass(){
 
+        //TF1
+        Scanner scanner = new Scanner("\"Test\") \"abä\" \"true\" \"\" \"te\tst\" +-*/=== 1.5 -11 If\ta_ return");
+        scanner.scanTokens();
+        assertEquals(
+                "STRING(\"\"Test\"\") RIGHT_PARENS(\")\") STRING(\"\"abä\"\") STRING(\"\"true\"\")" +
+                " STRING(\"\"\"\") STRING(\"\"te\tst\"\") PLUS(\"+\") MINUS(\"-\") STAR(\"*\") SLASH(\"/\") " +
+                "EQUALS(\"==\") ASSIGNMENT(\"=\") VALUE(\"1.5\") MINUS(\"-\") VALUE(\"11\")" +
+                " IDENTIFIER(\"If\") IDENTIFIER(\"a_\") RETURN(\"return\") EOF(\"\") ",
+                scanner.toString()) ;
+
+        //TF2
+        scanner = new Scanner("");
+        scanner.scanTokens();
+        assertEquals(
+                "EOF(\"\") ",
+                scanner.toString()) ;
+
+
+        //TF3
+        LexerExceptionHandler exceptionHandler = new LexerExceptionHandler();
+        scanner = new Scanner("if@", exceptionHandler);
+        try {
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        } assertTrue(exceptionHandler.hasExceptions());
+        //TF4
+        scanner = new Scanner("\"\\k\"");
+        scanner.scanTokens();
+        assertEquals("STRING(\"\"\\k\"\") EOF(\"\") ", scanner.toString());
+
+        //TF5
+        exceptionHandler = new LexerExceptionHandler();
+        scanner = new Scanner("%", exceptionHandler);
+        try {
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        } assertTrue(exceptionHandler.hasExceptions());
+
+        //TF6
+        exceptionHandler = new LexerExceptionHandler();
+        scanner = new Scanner("\"\"test\"\"", exceptionHandler);
+        try {
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        } assertTrue(exceptionHandler.hasExceptions());
+
+        //TF7
+        exceptionHandler = new LexerExceptionHandler();
+        scanner = new Scanner("\"test", exceptionHandler);
+        try {
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        } assertTrue(exceptionHandler.hasExceptions());
+
+        //TF8
+        exceptionHandler = new LexerExceptionHandler();
+        scanner = new Scanner("131a", exceptionHandler);
+        try {
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        } assertTrue(exceptionHandler.hasExceptions());
+
+        //TF9
+        exceptionHandler = new LexerExceptionHandler();
+        scanner = new Scanner("1.2.5", exceptionHandler);
+        try {
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        } assertTrue(exceptionHandler.hasExceptions());
+
+        //TF10
+        exceptionHandler = new LexerExceptionHandler();
+        scanner = new Scanner("1,5", exceptionHandler);
+        try {
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        } assertTrue(exceptionHandler.hasExceptions());
+
+
+        //TF11
+        scanner = new Scanner("-5 -5.5 6 6.6");
+        scanner.scanTokens();
+        assertEquals(
+                "MINUS(\"-\") VALUE(\"5\") MINUS(\"-\") VALUE(\"5.5\") VALUE(\"6\") VALUE(\"6.6\") EOF(\"\") ",
+                scanner.toString());
+
+        //TF12
+        Double positiveOverFlow = 1.7976931348623157E308 * 2;
+        Double negativeOverflow = -1.7976931348623157E308 * 2;
+
+        Token tok = new Token(TokenType.VALUE, null, positiveOverFlow, 1);
+        assertEquals(
+                Double.POSITIVE_INFINITY,
+                tok.getLiteral());
+        //TF13
+        tok = new Token(TokenType.VALUE, null, negativeOverflow, 1);
+        assertEquals(
+                Double.NEGATIVE_INFINITY,
+                tok.getLiteral());
+
+
+    }
+
+
+
+
+
+    //Overflow
+
+
+
+    @Test
+    void testUnknownToken() {
         LexerExceptionHandler exceptionHandler = new LexerExceptionHandler();
         Scanner scanner = new Scanner("if@", exceptionHandler);
         try {
