@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public abstract class ExceptionHandler<T extends Exception> {
 
-    private final ArrayList<T> exceptions;
+    protected final ArrayList<T> exceptions;
 
     public ExceptionHandler() {
         exceptions = new ArrayList<>();

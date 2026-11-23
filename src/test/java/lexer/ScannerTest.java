@@ -1,6 +1,5 @@
 package lexer;
 
-import exceptions.ExceptionHandler;
 import exceptions.lexer.LexerExceptionHandler;
 import org.junit.jupiter.api.Test;
 
@@ -38,17 +37,6 @@ public class ScannerTest {
     }
 
     @Test
-    void testErrorHandler_PrintsOutCorrectErrors() {
-        LexerExceptionHandler exceptionHandler = new LexerExceptionHandler();
-        Scanner scanner = new Scanner("55afwa\n\n\n\n\"unterminated string", exceptionHandler);
-        try {
-            scanner.scanTokens();
-        } catch (RuntimeException e) {
-            assertEquals("Error at line 1 with token type: VALUE\nError at line 5 with token type: STRING\n", exceptionHandler.printExceptions());
-        }
-    }
-
-    @Test
     void testNoErrorHandler_ThrowsError() {
         assertThrows(RuntimeException.class, () -> {
             Scanner scanner = new Scanner("55afwa\n\n\n\n");
@@ -58,6 +46,57 @@ public class ScannerTest {
             Scanner scanner = new Scanner("\"a");
             scanner.scanTokens();
         });
+
+        assertThrows(RuntimeException.class, () -> {
+            Scanner scanner = new Scanner("%");
+            scanner.scanTokens();
+        });
+        assertThrows(RuntimeException.class, () -> {
+            Scanner scanner = new Scanner("awaäa");
+            scanner.scanTokens();
+        });
+
+        assertThrows(RuntimeException.class, () -> {
+            Scanner scanner = new Scanner("1abc");
+            scanner.scanTokens();
+        });
+
+    }
+    @Test
+    void testErrorHandler_hasExceptions(){
+        LexerExceptionHandler exceptionHandler = new LexerExceptionHandler();
+        Scanner scanner = new Scanner("awaäa", exceptionHandler);
+        try {
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        } assertTrue(exceptionHandler.hasExceptions());
+
+        scanner = new Scanner("1abc", exceptionHandler);
+        try {
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        } assertTrue(exceptionHandler.hasExceptions());
+
+        exceptionHandler = new LexerExceptionHandler();
+        Scanner scanner2 = new Scanner("\"test", exceptionHandler);
+        try {
+            scanner2.scanTokens();
+        } catch (RuntimeException ignored) {
+        } assertTrue(exceptionHandler.hasExceptions());
+
+    }
+
+
+
+    @Test
+    void testErrorHandler_PrintsOutCorrectErrors() {
+        LexerExceptionHandler exceptionHandler = new LexerExceptionHandler();
+        Scanner scanner = new Scanner("55afwa\n\n\n\n\"unterminated string", exceptionHandler);
+        try {
+            scanner.scanTokens();
+        } catch (RuntimeException e) {
+            assertEquals("Error at line 1 with token type: VALUE\nError at line 5 with token type: STRING\n", exceptionHandler.printExceptions());
+        }
     }
 
 
@@ -289,7 +328,6 @@ public class ScannerTest {
 
     @Test
     void testTrueKeyword() {
-
         Scanner scanner = new Scanner("true");
         scanner.scanTokens();
         assertEquals("TRUE(\"true\") EOF(\"\") ", scanner.toString());
@@ -307,8 +345,6 @@ public class ScannerTest {
         scanner = new Scanner("true if truea");
         scanner.scanTokens();
         assertEquals("TRUE(\"true\") IF(\"if\") IDENTIFIER(\"truea\") EOF(\"\") ", scanner.toString());
-
-
     }
 
 
@@ -359,7 +395,7 @@ public class ScannerTest {
 
 
     @Test
-    void testValidIdentifierInput() {
+    void testIdentifierInput() {
         //Testing EC identifier med siffror i sig (ej början
         Scanner scanner = new Scanner("aa512");
         scanner.scanTokens();
@@ -529,20 +565,37 @@ public class ScannerTest {
     @Test
     void testValidStringInputs() {
 
-        //Testing empty string
-        Scanner scanner = new Scanner("\"\"");
-        scanner.scanTokens();
+        //Testing empty string, string with reserved word in it, string with new line
 
-        assertEquals("STRING(\"\"\"\") EOF(\"\") ", scanner.toString());
+        Scanner scanner1 = new Scanner("\"\" \"true\", \"te\nsät\"");
+        scanner1.scanTokens();
+        assertAll(() -> assertEquals("STRING(\"\"\"\") STRING(\"\"true\"\") COMMA(\",\") STRING(\"\"te\nsät\"\") EOF(\"\") ",
+                        scanner1.toString()
+                ),
+                () -> assertEquals(2, scanner1.getNline())
+        );
+        //Error embedded string
+        final Scanner scanner2 = new Scanner("\"\"test\"\"");
+        assertThrows(RuntimeException.class, () -> scanner2.scanTokens());
+
+        //Error unterminated string
+        LexerExceptionHandler exceptionHandler = new LexerExceptionHandler();
+        Scanner scanner3 = new Scanner("\"test", exceptionHandler);
+        try {
+            scanner3.scanTokens();
+        } catch (RuntimeException ignored) {
+        } assertTrue(exceptionHandler.hasExceptions());
+
+
 
         //Testing EC strings with newline:
-        scanner = new Scanner("\"te\nst\"");
+        Scanner scanner = new Scanner("\"te\nst\"");
         scanner.scanTokens();
         assertEquals("STRING(\"\"te\nst\"\") EOF(\"\") ", scanner.toString());
         assertEquals(2, scanner.getNline());
 
         //Testing unterminated string
-        LexerExceptionHandler exceptionHandler = new LexerExceptionHandler();
+        exceptionHandler = new LexerExceptionHandler();
 
         scanner = new Scanner("\"test", exceptionHandler);
         try {
@@ -609,7 +662,11 @@ public class ScannerTest {
         scanner = new Scanner("id} 5 /id+ 10 id*\"@123te\nst\"");
         scanner.scanTokens();
         assertEquals("IDENTIFIER(\"id\") RIGHT_CURLYBRAC(\"}\") VALUE(\"5\") SLASH(\"/\") IDENTIFIER(\"id\") PLUS(\"+\") VALUE(\"10\") IDENTIFIER(\"id\") STAR(\"*\") STRING(\"\"@123te\nst\"\") EOF(\"\") ", scanner.toString());
-
+        scanner = new Scanner("_test1 truE te_\na te(s)a");
+        scanner.scanTokens();
+        assertEquals(
+                "IDENTIFIER(\"_test1\") IDENTIFIER(\"truE\") IDENTIFIER(\"te_\") IDENTIFIER(\"a\") IDENTIFIER(\"te\") LEFT_PARENS(\"(\") IDENTIFIER(\"s\") RIGHT_PARENS(\")\") IDENTIFIER(\"a\") EOF(\"\") ",
+                scanner.toString());
     }
 
     @Test
@@ -627,17 +684,46 @@ public class ScannerTest {
         tok = scanner.getTokens().get(0);
         assertEquals(3, (double) tok.getLiteral(), 0.001);
 
-        scanner = new Scanner("3.5*6");
-        scanner.scanTokens();
-        tok = scanner.getTokens().get(0);
-        assertEquals(3.5, (double) tok.getLiteral(), 0.001);
+        //Decimal numbers getting the right literal returned
+        final Scanner scanner1 = new Scanner("3.5");
+        scanner1.scanTokens();
+        final Token tok1 = scanner1.getTokens().get(0);
+        assertAll(
+                "Decimal number",
+                () -> assertEquals(
+                        "VALUE(\"3.5\") EOF(\"\") ",
+                        scanner1.toString()
+                ),
+                () -> assertEquals(3.5, (double) tok1.getLiteral(), 0.001)
+        );
 
         //EC negative numbers
-        scanner = new Scanner("-11");
-        scanner.scanTokens();
-        tok = scanner.getTokens().get(1);
-        assertEquals("MINUS(\"-\") VALUE(\"11\") EOF(\"\") ", scanner.toString());
-        assertEquals(11, (double) tok.getLiteral(), 0.001);
+
+        Scanner scanner2 = new Scanner("-11");
+        scanner2.scanTokens();
+        Token tok2 = scanner2.getTokens().get(1);
+        assertAll(
+                "Negative number",
+                () -> assertEquals(
+                        "MINUS(\"-\") VALUE(\"11\") EOF(\"\") ",
+                        scanner2.toString()
+                ),
+                () -> assertEquals(11.0, (double) tok2.getLiteral(), 0.001)
+        );
+
+        //overflow turned into infinity:
+        Double positiveOverFlow = 1.7976931348623157E308 * 2;
+        Double negativeOverflow = -1.7976931348623157E308 * 2;
+        Token tok3 = new Token(TokenType.VALUE, null, positiveOverFlow, 1);
+        assertEquals(
+                Double.POSITIVE_INFINITY,
+                tok3.getLiteral());
+
+        tok3 = new Token(TokenType.VALUE, null, negativeOverflow, 1);
+        assertEquals(
+                Double.NEGATIVE_INFINITY,
+                tok3.getLiteral());
+
 
     }
 
@@ -776,6 +862,7 @@ public class ScannerTest {
         } catch (RuntimeException ignored) {
         } assertTrue(exceptionHandler.hasExceptions());
 
+
         //TF10
         exceptionHandler = new LexerExceptionHandler();
         scanner = new Scanner("1,5", exceptionHandler);
@@ -809,11 +896,75 @@ public class ScannerTest {
 
     }
 
+    @Test
+    void identifiersScannedCorrectly(){
+        //identifier with an allowed special sign in it, identifier that looks like a reserved word, ending identifier with letter, identifiers separated by newline:
+        Scanner scanner = new Scanner("_test1 truE te_\na");
+        scanner.scanTokens();
+        assertEquals(
+                "IDENTIFIER(\"_test1\") IDENTIFIER(\"truE\") IDENTIFIER(\"te_\") IDENTIFIER(\"a\") EOF(\"\") ",
+                scanner.toString());
+
+        //attempting to start identifier with a number:
+        LexerExceptionHandler exceptionHandler = new LexerExceptionHandler();
+        scanner = new Scanner("1abc", exceptionHandler);
+        try {
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        } assertTrue(exceptionHandler.hasExceptions());
+
+        //putting invalid letter inside identifier:
+        exceptionHandler = new LexerExceptionHandler();
+        scanner = new Scanner("awaäa", exceptionHandler);
+        try {
+            scanner.scanTokens();
+        } catch (RuntimeException ignored) {
+        } assertTrue(exceptionHandler.hasExceptions());
 
 
+    }
 
+@Test
+void operatorsScannedCorrectly(){
 
-    //Overflow
+  //operator delimiting themselves properly given white space, semicolon other operators etc
+    Scanner scanner = new Scanner("= ==>=;=<=><=!!=// /");
+    scanner.scanTokens();
+    assertEquals(
+            "ASSIGNMENT(\"=\") EQUALS(\"==\") GREATER_EQUALS(\">=\") SEMICOLON(\";\") ASSIGNMENT(\"=\") LESS_EQUALS(\"<=\") GREATER(\">\") LESS_EQUALS(\"<=\") NOT(\"!\") NOT_EQUALS(\"!=\") EOF(\"\") ",
+            scanner.toString());
+
+    //mixed input with random operators
+    scanner = new Scanner("+;=A f / / +    a -     \n =    -**-   */=<   =");
+    scanner.scanTokens();
+    assertEquals(
+            "PLUS(\"+\") SEMICOLON(\";\") ASSIGNMENT(\"=\") IDENTIFIER(\"A\") IDENTIFIER(\"f\") SLASH(\"/\") SLASH(\"/\") PLUS(\"+\") IDENTIFIER(\"a\") MINUS(\"-\") ASSIGNMENT(\"=\") MINUS(\"-\") STAR(\"*\") STAR(\"*\") MINUS(\"-\") STAR(\"*\") SLASH(\"/\") ASSIGNMENT(\"=\") LESSER(\"<\") ASSIGNMENT(\"=\") EOF(\"\") ",
+            scanner.toString());
+
+    //operators interacting with numbers properly
+    scanner = new Scanner("5000+6000=6000*600/600 * -5000 / 60001 * 1000 = -100000");
+    scanner.scanTokens();
+    assertEquals(
+            "VALUE(\"5000\") PLUS(\"+\") VALUE(\"6000\") ASSIGNMENT(\"=\") VALUE(\"6000\") STAR(\"*\") VALUE(\"600\") SLASH(\"/\") VALUE(\"600\") STAR(\"*\") MINUS(\"-\") VALUE(\"5000\") SLASH(\"/\") VALUE(\"60001\") STAR(\"*\") VALUE(\"1000\") ASSIGNMENT(\"=\") MINUS(\"-\") VALUE(\"100000\") EOF(\"\") ",
+            scanner.toString());
+
+    //double division sign not recognised as operator while space separated division signs are
+    scanner = new Scanner("/ / //");
+    scanner.scanTokens();
+    assertEquals(
+            "SLASH(\"/\") SLASH(\"/\") EOF(\"\") ",
+            scanner.toString());
+    //invalid operator
+    LexerExceptionHandler exceptionHandler = new LexerExceptionHandler();
+
+   scanner = new Scanner("%", exceptionHandler);
+    try {
+        scanner.scanTokens();
+    } catch (RuntimeException ignored) {
+    }
+    assertTrue(exceptionHandler.hasExceptions());
+}
+
 
 
 
@@ -901,4 +1052,24 @@ public class ScannerTest {
         assertEquals("IDENTIFIER(\"rEturn\") EOF(\"\") ", scanner.toString());
 
     }
+
+@Test
+void numberTests(){
+
+
+// Negative numbers lexed as two tokens
+    Scanner scanner = new Scanner("-11");
+    scanner.scanTokens();
+    Token tok = scanner.getTokens().get(1);
+    assertAll(
+            "Negative number",
+            () -> assertEquals(
+                    "MINUS(\"-\") VALUE(\"11\") EOF(\"\") ",
+                    scanner.toString()
+            ),
+            () -> assertEquals(11.0, (double) tok.getLiteral(), 0.001)
+    );
+
+
+}
 }
